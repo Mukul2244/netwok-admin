@@ -11,7 +11,7 @@ import PubMates from './PubMates'
 import { useAuth } from "@/context/AuthContext"
 import Timer from "@/components/Timer"
 import { axiosInstance } from "@/lib/axios"
-import { use, useEffect, useState } from "react"
+import {useEffect, useState } from "react"
 
 export default function Header() {
   const { username } = useAuth()

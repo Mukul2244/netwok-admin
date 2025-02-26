@@ -4,26 +4,32 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Search, MessageSquare } from 'lucide-react'
-import { customersIdAndUsernames } from "@/_ApiCall/restaurant"
 import { UserInterface } from '@/interfaces/User'
 import { useAuth } from '@/context/AuthContext'
 import { useChat } from '@/context/ChatContext'
+import { axiosInstance } from '@/lib/axios'
 
 export default function PubMates() {
   const { username } = useAuth()
   const {onStartChat } = useChat()
   const [searchTerm, setSearchTerm] = useState('')
-  const [filteredUsers, setFilteredUsers] = useState<UserInterface[]>([])
+  const [selectedUser, setSelectedUser] = useState<UserInterface[]>([])
 
+  const fetchUsers = async () => {
+    const response = await axiosInstance.get('/restaurants/')
+    const ids = response.data.customers;
+    const usernames = response.data.customers_usernames;
+    const mergedCustomers = ids.map((id: number, index: number) => ({
+        id: id,
+        username: usernames[index],
+    }));
+    setSelectedUser(mergedCustomers);
+    console.log(mergedCustomers);
+  }
   useEffect(() => {
-    const fetchCustomerDetails = async () => {
-      const details = await customersIdAndUsernames();
-      const filteredDetails: UserInterface[] = details.filter((user: UserInterface) => user.username !== username);
-      setFilteredUsers(filteredDetails);
-    };
-    fetchCustomerDetails();    
-  }, []);
-
+    fetchUsers();
+  }, [])
+  
   // const handleSearch = () => {
   //   const lowercaseTerm = searchTerm.toLowerCase()
   //   const filtered = mockUsers.filter(user =>
@@ -51,7 +57,7 @@ export default function PubMates() {
         </Button>
       </div>
       <ScrollArea className="h-[calc(100vh-10rem)]">
-        {filteredUsers.map((user) => (
+        {selectedUser.map((user) => (
           <div key={user.id} className="flex items-center mb-4 p-3 hover:bg-fuchsia-100 rounded-xl transition-all duration-300 animate-fade-in-up">
             <Avatar className="h-12 w-12 border-2 border-fuchsia-300">
               <AvatarImage src={user.avatar} />

@@ -1,5 +1,5 @@
 "use client"
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -8,70 +8,90 @@ import { useAuth } from '@/context/AuthContext'
 import { MessageInterface } from '@/interfaces/Messsage'
 import { useSocket } from '@/context/SocketContext'
 import { useChat } from '@/context/ChatContext'
-import { fetchChatId, chatHistory } from '@/_ApiCall/chat'
-import { createPrivateSocket } from '@/_ApiCall/socket'
+import { axiosInstance } from '@/lib/axios'
+import getCookie from '@/lib/getCookie'
 
-function ChatLayout() {
+export default function ChatLayout() {
   const [messages, setMessages] = useState<MessageInterface[]>([])
   const [inputText, setInputText] = useState('')
-  const { username, token } = useAuth()
+  const { username } = useAuth()
   const { activeChat } = useChat();
   const { socket, setSocket } = useSocket();
   const socketRef = useRef<WebSocket | null>(null); // Store WebSocket instance
 
-  const handleSocketConnection = async (ChatId: string) => {
-    if (!ChatId || !token) return
-
-    const ws = await createPrivateSocket(token, ChatId)
-    socketRef.current = ws;
-    setSocket(ws);
-    ws.onopen = () => {
-      console.log('WebSocket connected');
-    };
-    ws.onmessage = (event) => {
-      const message = JSON.parse(event.data);
-      setMessages((prevMessages) => [...prevMessages, message]);
-    };
-    ws.onclose = () => {
-      console.log('WebSocket disconnected');
-    };
-
-  }
-  const getChatMessages = async (ChatId: string) => {
-    const prevChat: MessageInterface[] = await chatHistory(token, ChatId)
-    if (Array.isArray(prevChat)) {
-      setMessages(prevChat)
+  const chatId = useCallback(async () => {
+    try {
+      const response = await axiosInstance.get('/private-chatdb/', {
+        params: {
+          username,
+          activeChat
+        }
+      })
+      return response.data.chat_id
+    } catch (error) {
+      console.error("Error fetching chat ID:", error);
+      return null;
     }
-  }
+  }, [username, activeChat]);
 
+  const handleChatHistory = useCallback(async () => {
+    try {
+      const chatIdValue = await chatId();
+      if (chatIdValue) {
+        const response = await axiosInstance.get(`/private-chat/?chat_id=${chatIdValue}`)
+        setMessages(response.data)
+      }
+    } catch (error) {
+      console.error("Error fetching chat history:", error);
+    }
+  }, [chatId]);
+
+  const handleSocketConnection = useCallback(async () => {
+    try {
+      const token = await getCookie('accessToken')
+      const chatIdValue = await chatId();
+      if (chatIdValue && token) {
+        const ws = new WebSocket(`ws://13.60.42.120/ws/private/${chatIdValue}/${token}/`);
+        socketRef.current = ws;
+        setSocket(ws);
+        ws.onopen = () => {
+          console.log('WebSocket connected');
+        };
+        ws.onmessage = (event) => {
+          const message = JSON.parse(event.data);
+          setMessages((prevMessages) => [...prevMessages, message]);
+        };
+        ws.onclose = () => {
+          console.log('WebSocket disconnected');
+        };
+      }
+    } catch (error) {
+      console.error("Error connecting to WebSocket:", error);
+    }
+  }, [chatId, setSocket]);
 
   useEffect(() => {
     if (activeChat) {
-      fetchChatId(token, username, activeChat).then((ChatId) => {
-        if (ChatId) {
-          handleSocketConnection(ChatId)
-          getChatMessages(ChatId)
-        }
-      })
+      handleChatHistory()
+      handleSocketConnection()
     }
 
     return () => {
       if (socketRef.current) {
         socketRef.current.close();
-        setSocket(null);
       }
-    }
-  }, [])
+    };
+  }, [activeChat, handleChatHistory, handleSocketConnection]);
 
-
-  const handleSendMessage = () => {
+  const handleSendMessage = useCallback(() => {
+    console.log('Sending message:', inputText);
     if (inputText.trim() !== '') {
       if (socket && socket.readyState === WebSocket.OPEN) {
-        socket.send(JSON.stringify({ message: inputText }))
+        socket.send(JSON.stringify({ message: inputText }));
       }
-      setInputText('')
+      setInputText('');
     }
-  }
+  }, [inputText, socket]);
 
   return (
     <div className="flex flex-col flex-1 bg-gradient-to-br from-violet-100 to-fuchsia-100 rounded-2xl shadow-md transition-all duration-300 p-4 space-y-4">
@@ -109,13 +129,11 @@ function ChatLayout() {
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-            // disabled={!isValidated}
             className="flex-1 border-fuchsia-300 focus:border-fuchsia-500 focus:ring-fuchsia-500 rounded-full transition-all duration-300"
           />
           <Button
             onClick={handleSendMessage}
             size="icon"
-            // disabled={!isValidated}
             className="bg-gradient-to-r from-violet-500 to-fuchsia-500 text-white hover:from-violet-600 hover:to-fuchsia-600 rounded-full transition-all duration-300"
           >
             <Send className="h-5 w-5" />
@@ -127,5 +145,3 @@ function ChatLayout() {
   );
 }
 
-
-export default ChatLayout

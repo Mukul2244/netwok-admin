@@ -8,6 +8,37 @@ const axiosInstance = axios.create({
   },
 });
 
+// Add an interceptor to attach the token dynamically
+axiosInstance.interceptors.request.use(async (config) => {
+  const token = await getCookie("accessToken"); // Get token from server cookies
+
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+
+  return config;
+});
+
+axiosInstance.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+
+    if (error.response.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+
+      try {
+      } catch (refreshError) {  
+        console.error("Error refreshing token:", refreshError);
+        return Promise.reject(refreshError);
+      }
+    }
+    
+  }
+);
+
+
+
 const api = axios.create({
   baseURL: "https://rk4huq4sfe.execute-api.eu-north-1.amazonaws.com",
   headers: {

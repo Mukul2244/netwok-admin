@@ -22,7 +22,7 @@ import axios from "axios";
 
 export default function Register() {
   const router = useRouter()
-  const { setUsername, setToken } = useAuth()
+  const { setUsername } = useAuth()
   const toast = useToast();
   const [loading, setLoading] = useState(false);
   const form = useForm<z.infer<typeof customerRegisterSchema>>({
@@ -44,7 +44,6 @@ export default function Register() {
         accessToken: response.data.token,
       })
       setUsername(response.data.username);
-      setToken(response.data.token);
       toast.toast({
         variant: "default",
         description: "You have  successfully registered",

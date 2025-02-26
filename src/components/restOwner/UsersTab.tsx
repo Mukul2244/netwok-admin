@@ -10,18 +10,18 @@ import api from '@/lib/axios'
 export default function UsersTab() {
   const [selectedUser, setSelectedUser] = useState<UserInterface[]>([])
 
+  const fetchUsers = async () => {
+    const response = await api.get('/restaurants/33/')
+    const ids = response.data.customers;
+    const usernames = response.data.customers_usernames;
+    const mergedCustomers = ids.map((id: number, index: number) => ({
+        id: id,
+        username: usernames[index],
+    }));
+    setSelectedUser(mergedCustomers);
+    console.log(mergedCustomers);
+  }
   useEffect(() => {
-    const fetchUsers = async () => {
-      const response = await api.get('/restaurants/33/')
-      const ids = response.data.customers;
-      const usernames = response.data.customers_usernames;
-      const mergedCustomers = ids.map((id: number, index: number) => ({
-          id: id,
-          username: usernames[index],
-      }));
-      setSelectedUser(mergedCustomers);
-      console.log(mergedCustomers);
-    }
     fetchUsers();
   }, [])
 

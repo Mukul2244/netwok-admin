@@ -3,7 +3,7 @@ import type { NextRequest } from "next/server";
 
 export async function middleware(req: NextRequest) {
   const accessToken = req.cookies.get("accessToken")?.value;
-  const isSuperUser = req.cookies.get("isSuperUser")?.value ;
+  const isSuperUser = req.cookies.get("isSuperUser")?.value === "true";
   const path = req.nextUrl.pathname;
 
   // Exclude `/user/register` from middleware

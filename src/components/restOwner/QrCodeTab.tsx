@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { RefreshCw } from "lucide-react";
-import Timer from "@/components/restOwner/Timer";
+import Timer from "@/components/Timer";
 import { QRCodeSVG } from "qrcode.react";
 import api from "@/lib/axios";
 export default function QrCodeTab() {

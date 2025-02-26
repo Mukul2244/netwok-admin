@@ -9,10 +9,20 @@ import { Button } from "@/components/ui/button"
 import { Beer, Users } from 'lucide-react'
 import PubMates from './PubMates'
 import { useAuth } from "@/context/AuthContext"
-import Timer from './Timer'
+import Timer from "@/components/Timer"
+import { axiosInstance } from "@/lib/axios"
+import { use, useEffect, useState } from "react"
 
 export default function Header() {
   const { username } = useAuth()
+  const [expiryDate, setExpiryDate] = useState<string>("")
+  const handleTimer = async () => {
+    const response = await axiosInstance.get('/customers/')
+    setExpiryDate(response.data.token_expiry_on);
+  }
+  useEffect(() => {
+    handleTimer()
+  }, [])
 
   return (
     <header className="bg-white/80 backdrop-blur-sm shadow-md p-4 flex items-center justify-between sticky top-0 z-10 transition-all duration-300 ease-in-out">
@@ -27,7 +37,7 @@ export default function Header() {
           Welcome, {username}!
         </div>
         <div className="text-sm font-medium text-fuchsia-700 bg-fuchsia-100 px-3 py-1 rounded-full">
-          <Timer/>
+          <Timer expiryDate={expiryDate} />
         </div>
         <Sheet>
           <SheetTrigger asChild>

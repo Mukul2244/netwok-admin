@@ -3,16 +3,16 @@ import React from 'react'
 import { Progress } from "@/components/ui/progress"
 import { Button } from "@/components/ui/button"
 
-
-
 export default function CouponsSection() {
   const [totalTime, setTotalTime] = React.useState(0)
+
   const formatTime = (time: number) => {
     const hours = Math.floor(time / 3600)
     const minutes = Math.floor((time % 3600) / 60)
     const seconds = time % 60
     return `${hours}h ${minutes}m ${seconds}s`
   }
+
   const coupons = [
     { title: "1 Hour Special", discount: "Free snack", timeRequired: 3600 },
     { title: "2 Hour Reward", discount: "10% off your bill", timeRequired: 7200 },
@@ -20,19 +20,19 @@ export default function CouponsSection() {
     { title: "4 Hour Legend", discount: "25% off your total bill", timeRequired: 14400 }
   ]
 
-  
+  const addTime = () => {
+    setTotalTime((prevTime) => prevTime + 3600) // Add 1 hour (3600 seconds)
+  }
 
   return (
     <div className="flex-1 p-4 bg-gradient-to-br from-amber-100 to-orange-100 rounded-lg shadow-lg overflow-auto">
       <div className="mb-4">
         <h3 className="text-2xl font-bold mb-2 text-amber-800">Time at The Tipsy Tavern</h3>
         <Progress 
-          value={(totalTime / 3600) * 100} 
+          value={(totalTime / 14400) * 100} 
           className="w-full h-4 bg-amber-200"
         />
-        <p className="text-sm text-amber-700 mt-1">Total time: 
-          {/* {formatTime(totalTime)} */}
-          </p>
+        <p className="text-sm text-amber-700 mt-1">Total time: {formatTime(totalTime)}</p>
       </div>
       <div className="grid grid-cols-1 gap-4">
         {coupons.map((coupon, index) => (
@@ -45,6 +45,9 @@ export default function CouponsSection() {
           </div>
         ))}
       </div>
+      <Button onClick={addTime} className="mt-4 bg-amber-500 text-white hover:bg-amber-600 transition-all duration-300">
+        Add 1 Hour
+      </Button>
     </div>
   )
 }

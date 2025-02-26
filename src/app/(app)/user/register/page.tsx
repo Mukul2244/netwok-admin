@@ -50,6 +50,7 @@ export default function Register() {
       });
       router.push('/user')
     } catch (error) {
+      console.log(error);
       toast.toast({
         variant: "destructive",
         title: "Error",

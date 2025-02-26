@@ -14,7 +14,7 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [username, setUsername] = useState<string>("");
-  const [token, setToken] = useState<string | null>(null);
+  // const [token, setToken] = useState<string | null>(null);
 
   useEffect(() => {
     const storedUsername = localStorage.getItem("username");

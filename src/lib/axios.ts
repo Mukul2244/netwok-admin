@@ -24,16 +24,24 @@ axiosInstance.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    if (error.response.status === 401 && !originalRequest._retry) {
+    if (error.response.status === 403 && !originalRequest._retry) {
       originalRequest._retry = true;
 
       try {
+        const response = await axiosInstance.post('/customers/regenerate-token/')
+        await axios.post('/api/setCookie', {
+          accessToken: response.data.new_token
+        })
+        axiosInstance.defaults.headers.common["Authorization"] = `Bearer ${response.data.new_token}`;
+        originalRequest.headers["Authorization"] = `Bearer ${response.data.new_token}`;
+        return axiosInstance(originalRequest);
       } catch (refreshError) {  
         console.error("Error refreshing token:", refreshError);
+        axios.post('/api/logout')
         return Promise.reject(refreshError);
       }
     }
-    
+    return Promise.reject(error);
   }
 );
 

@@ -71,6 +71,7 @@ export default function Login() {
       })
 
     } catch (error) {
+      console.log(error)
       toast.toast({
         variant: "destructive",
         title: "Error",
@@ -122,7 +123,7 @@ export default function Login() {
         </div>
         <div>
           <p className="text-center text-gray-500 text-sm mt-4">
-            Don't have an account? <Link href="/register" className="text-indigo-600">Register</Link>
+            Don&apos;t have an account? <Link href="/register" className="text-indigo-600">Register</Link>
           </p>
         </div>
       </div>

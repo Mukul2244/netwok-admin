@@ -1,17 +1,21 @@
 import React, { useState } from 'react'
 import { Button } from "@/components/ui/button"
 
+type PlayerChoices = {
+  [key: string]: string
+}
+
 export default function RockPaperScissors() {
-  const [playerChoices, setPlayerChoices] = useState({})
-  const [result, setResult] = useState('')
-  const [currentTurn, setCurrentTurn] = useState(0)
+  const [playerChoices, setPlayerChoices] = useState<PlayerChoices>({})
+  const [result, setResult] = useState<string>('')
+  const [currentTurn, setCurrentTurn] = useState<number>(0)
   const choices = ['Rock', 'Paper', 'Scissors']
   const players = ['You', 'Alice', 'Bob', 'Charlie']
 
-  const play = (choice) => {
-    const newPlayerChoices = {...playerChoices, [players[currentTurn]]: choice}
+  const play = (choice: string) => {
+    const newPlayerChoices = { ...playerChoices, [players[currentTurn]]: choice }
     setPlayerChoices(newPlayerChoices)
-    
+
     if (currentTurn < players.length - 1) {
       setCurrentTurn(currentTurn + 1)
     } else {
@@ -19,14 +23,14 @@ export default function RockPaperScissors() {
     }
   }
 
-  const determineWinner = (choices) => {
+  const determineWinner = (choices: PlayerChoices) => {
     const uniqueChoices = new Set(Object.values(choices))
     if (uniqueChoices.size === 1) {
       setResult("It's a tie!")
     } else if (uniqueChoices.size === 3) {
       setResult("It's a three-way tie!")
     } else {
-      const winner = Object.entries(choices).find(([player, choice]) => {
+      const winner = Object.entries(choices).find(([choice]) => {
         const otherChoices = Object.values(choices).filter(c => c !== choice)
         return (choice === 'Rock' && otherChoices.includes('Scissors')) ||
                (choice === 'Paper' && otherChoices.includes('Rock')) ||

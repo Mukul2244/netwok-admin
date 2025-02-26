@@ -14,7 +14,7 @@ export default function PubsTab() {
   const getData = async () => {
     const response = await api.get('/superuser/pubsdata/')
     const data = response.data
-    setTopPubs(data.map((pub: any) => ({
+    setTopPubs(data.map((pub: { name: string; total_customers: number; revenue: number; active_chats: number }) => ({
       name: pub.name,
       users: pub.total_customers,
       revenue: pub.revenue,

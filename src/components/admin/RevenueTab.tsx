@@ -37,7 +37,7 @@ export default function RevenueTab() {
     })
     const revenueData = data.restaurants.monthly_counts
     if (revenueData.length > 0) {
-      setRevenueData(revenueData.map((item: any) => ({
+      setRevenueData(revenueData.map((item: { month: string; total_revenue: number }) => ({
         month: item.month,
         revenue: item.total_revenue
       })))

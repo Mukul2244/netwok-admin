@@ -7,7 +7,7 @@ import { Send, Sparkles } from 'lucide-react'
 import { useAuth } from '@/context/AuthContext'
 import { MessageInterface } from '@/interfaces/Messsage'
 import { useSocket } from '@/context/SocketContext'
-import api from '@/lib/axios'
+import { axiosInstance } from '@/lib/axios'
 import getCookie from '@/lib/getCookie'
 
 export default function ChatSection() {
@@ -27,25 +27,29 @@ export default function ChatSection() {
     }
   }, [inputText, socket]);
 
-   const handleConnection = async () => {
-    const response = await api.get('/group-chat/')
-    setMessages(response.data)
-    const token = await getCookie('accessToken')
-    const ws = new WebSocket(`ws://13.60.42.120/ws/group/33/951656/${token}/`);
-    socketRef.current = ws
-    setSocket(ws)
-    ws.onopen = () => {
-      console.log('WebSocket connected');
-    };
-    ws.onmessage = (event) => {
-      const message = JSON.parse(event.data);
-      setMessages((prevMessages) => [...prevMessages, message]);
-    };
-    ws.onclose = () => {
-      console.log('WebSocket disconnected');
-    };
+  const handleConnection = useCallback(async () => {
+    try {
+      const response = await axiosInstance.get('/group-chat/')
+      setMessages(response.data)
+      const token = await getCookie('accessToken')
+      const ws = new WebSocket(`ws://13.60.42.120/ws/group/33/951656/${token}/`);
+      socketRef.current = ws
+      setSocket(ws)
+      ws.onopen = () => {
+        console.log('WebSocket connected');
+      };
+      ws.onmessage = (event) => {
+        const message = JSON.parse(event.data);
+        setMessages((prevMessages) => [...prevMessages, message]);
+      };
+      ws.onclose = () => {
+        console.log('WebSocket disconnected');
+      };
+    } catch (error) {
+      console.error("Error connecting to WebSocket:", error);
+    }
+  }, [setSocket]);
 
-  }
   useEffect(() => {
     handleConnection()
     return () => {
@@ -54,7 +58,7 @@ export default function ChatSection() {
         setSocket(null);
       }
     }
-  }, [])
+  }, [handleConnection, setSocket])
 
   const handleAIAssist = () => {
     const aiSuggestions = [
@@ -68,7 +72,7 @@ export default function ChatSection() {
   return (
     <div className="flex flex-col flex-1 bg-gradient-to-br from-violet-100 to-fuchsia-100 rounded-2xl shadow-md transition-all duration-300 p-4 space-y-4">
       <div className="flex-1 min-h-[300px] max-h-[400px] overflow-y-auto">
-        {messages.length == 0
+        {messages.length === 0
           ? (
             <div>
               <p className="text-center text-fuchsia-500">No messages yet</p>
@@ -100,14 +104,12 @@ export default function ChatSection() {
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-            // disabled={!isValidated}
             className="flex-1 border-fuchsia-300 focus:border-fuchsia-500 focus:ring-fuchsia-500 rounded-full transition-all duration-300"
           />
           <Button
             onClick={handleAIAssist}
             variant="outline"
             size="icon"
-            // disabled={!isValidated}
             className="text-fuchsia-500 border-fuchsia-300 hover:bg-fuchsia-100 rounded-full transition-all duration-300"
           >
             <Sparkles className="h-5 w-5" />
@@ -116,7 +118,6 @@ export default function ChatSection() {
           <Button
             onClick={handleSendMessage}
             size="icon"
-            // disabled={!isValidated}
             className="bg-gradient-to-r from-violet-500 to-fuchsia-500 text-white hover:from-violet-600 hover:to-fuchsia-600 rounded-full transition-all duration-300"
           >
             <Send className="h-5 w-5" />

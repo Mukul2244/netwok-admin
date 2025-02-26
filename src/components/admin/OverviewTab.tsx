@@ -46,14 +46,14 @@ export default function OverviewTab() {
     })
     const revenueData = data.restaurants.monthly_counts
     if (revenueData.length>0) {
-      setRevenueData(revenueData.map((item: any) => ({
+      setRevenueData(revenueData.map((item:{ month: string; total_revenue: number }) => ({
         month: item.month,
         revenue: item.total_revenue
       })))
     }
     const usersData = data.customers.monthly_counts
     if (usersData.length>0) {
-      setUserGrowthData(usersData.map((item: any) => ({
+      setUserGrowthData(usersData.map((item:{ month: string; count: number }) => ({
         month: item.month,
         users: item.count
       })))

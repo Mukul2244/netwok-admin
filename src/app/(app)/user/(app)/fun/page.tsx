@@ -2,44 +2,32 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { FlameIcon, MessageCircle, Smile, Laugh, Heart, UserIcon as Male, UserIcon as Female } from "lucide-react"
-import api from "@/lib/axios"
+// import api from "@/lib/axios"
 
 export default function Home() {
-  const [data, setData] = useState<any>([])
-  const [isMixedBag, setIsMixedBag] = useState(false)
-  const [showMixedBagOptions, setShowMixedBagOptions] = useState(true)
   const [hotness, setHotness] = useState<number>(1)
-  const [selectedType, setSelectedType] = useState<"question" | "compliment" | "joke" | "pickup" | null>(null)
-  const [gender, setGender] = useState<"male" | "female" | null>(null)
+  const [showMixedBagOptions, setShowMixedBagOptions] = useState(true)
   const [showGenderOptions, setShowGenderOptions] = useState<"compliment" | "pickup" | null>(null)
 
   const handleTypeSelection = (type: "question" | "compliment" | "joke" | "pickup" | "mixed") => {
     if (type === "mixed") {
-      setIsMixedBag(true)
       setShowMixedBagOptions(false)
     } else {
-      setIsMixedBag(false)
       if (type === "compliment" || type === "pickup") {
         setShowGenderOptions(type)
-      } else {
-        setSelectedType(type)
       }
     }
   }
 
   const handleMixedBagSelection = (type: "question" | "compliment" | "joke" | "pickup") => {
-    setSelectedType(type)
     if (type === "compliment" || type === "pickup") {
       setShowGenderOptions(type)
     }
   }
 
   const handleGenderSelection = (gender: "male" | "female") => {
-    setGender(gender)
-    setSelectedType(showGenderOptions!)
-  }
-  const handleData = async () => {
-    const response = await api.get('/icebreakers/')
+    console.log(`Selected gender: ${gender}`)
+    setShowGenderOptions(null)
   }
 
   return (

@@ -2,11 +2,11 @@
 import React, {
     createContext,
     useContext,
-    useEffect,
+    // useEffect,
     useState,
 } from "react";
-import fetchUser from "@/lib/fetchUser";
-import getCookie from "@/lib/getCookie";
+// import fetchUser from "@/lib/fetchUser";
+// import getCookie from "@/lib/getCookie";
 
 const AuthContext = createContext<{
     _id: string;

@@ -5,7 +5,7 @@ import TriviaGame from '@/components/user/TriviaGame'
 import RockPaperScissors from '@/components/user/RockPaperScissors'
 
 export default function GamesSection() {
-  const [currentGame, setCurrentGame] = useState(null)
+  const [currentGame, setCurrentGame] = useState<"trivia"|"rps"|null>(null)
 
   return (
     <div className="flex-1 bg-gradient-to-br from-cyan-100 to-blue-100 rounded-lg shadow-lg overflow-auto p-4">

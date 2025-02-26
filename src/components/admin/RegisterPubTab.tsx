@@ -46,7 +46,7 @@ export default function RegisterPubTab() {
   const userList = async () => {
     const response = await api.get("/users/")
     const users = response.data
-    setUsers(users.filter((user: any) => (user.is_superuser === false)))
+    setUsers(users.filter((user: { is_superuser: boolean }) => (user.is_superuser === false)))
   }
   useEffect(() => {
     userList()
@@ -61,6 +61,7 @@ export default function RegisterPubTab() {
         description: "You have successfully registered a new restaurant",
       })
     } catch (error) {
+      console.log(error)
       toast.toast({
         variant: "destructive",
         description: "Something went wrong",

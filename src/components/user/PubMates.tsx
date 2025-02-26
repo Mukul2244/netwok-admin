@@ -5,12 +5,12 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Search, MessageSquare } from 'lucide-react'
 import { UserInterface } from '@/interfaces/User'
-import { useAuth } from '@/context/AuthContext'
+// import { useAuth } from '@/context/AuthContext'
 import { useChat } from '@/context/ChatContext'
 import { axiosInstance } from '@/lib/axios'
 
 export default function PubMates() {
-  const { username } = useAuth()
+  // const { username } = useAuth()
   const {onStartChat } = useChat()
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedUser, setSelectedUser] = useState<UserInterface[]>([])

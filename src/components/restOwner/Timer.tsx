@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
 export default function Timer({ expiryDate }: { expiryDate: string }) {
   const [remainingTime, setRemainingTime] = useState("00:00");
 
-  const updateRemainingTime = () => {
+  const updateRemainingTime = useCallback(() => {
     const expiryTime = new Date(expiryDate).getTime();
     const currentTime = new Date().getTime();
     // time in milliseconds
@@ -21,7 +21,7 @@ export default function Timer({ expiryDate }: { expiryDate: string }) {
     setRemainingTime(
       `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`
     );
-  };
+  }, [expiryDate]);
 
   useEffect(() => {
     // Initialize and update every second
@@ -29,7 +29,7 @@ export default function Timer({ expiryDate }: { expiryDate: string }) {
 
     // Cleanup the interval when the component unmounts
     return () => clearInterval(timer);
-  }, [expiryDate]);
+  }, [expiryDate, updateRemainingTime]);
 
   return (
     <span>{remainingTime}</span>

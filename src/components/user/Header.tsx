@@ -27,7 +27,7 @@ export default function Header() {
           Welcome, {username}!
         </div>
         <div className="text-sm font-medium text-fuchsia-700 bg-fuchsia-100 px-3 py-1 rounded-full">
-          {/* <Timer/> */}
+          <Timer/>
         </div>
         <Sheet>
           <SheetTrigger asChild>

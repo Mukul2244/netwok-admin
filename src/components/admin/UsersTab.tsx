@@ -18,7 +18,7 @@ export default function UsersTab() {
       const data = response.data
       const usersData = data.customers.monthly_counts
       if (usersData.length>0) {
-        setUserGrowthData(usersData.map((item: any) => ({
+        setUserGrowthData(usersData.map((item: { month: string; count: number }) => ({
           month: item.month,
           users: item.count
         })))

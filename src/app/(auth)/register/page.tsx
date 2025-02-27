@@ -13,40 +13,33 @@ import {
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { userRegisterSchema } from "@/schemas/userRegisterSchema";
 import Link from "next/link";
-import api from "@/lib/axios";
-import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner"
+import api from "@/lib/axios";
+import { RegisterSchema } from "@/schemas/RegisterSchema";
+
 
 export default function Register() {
    const [loading, setLoading] = useState(false)
   const router = useRouter();
-  const toast = useToast();
-  const form = useForm<z.infer<typeof userRegisterSchema>>({
-    resolver: zodResolver(userRegisterSchema),
+  const form = useForm<z.infer<typeof RegisterSchema>>({
+    resolver: zodResolver(RegisterSchema),
     defaultValues: {
       username: "",
       email: "",
       password: "",
     },
   });
-  const handleRegister = async (data: z.infer<typeof userRegisterSchema>) => {
+  const handleRegister = async (data: z.infer<typeof RegisterSchema>) => {
     setLoading(true)
     try {
       await api.post("/users/",data);
-      toast.toast({
-        variant: "default",
-        description: "You have successfully registered. Please login",
-      });
+      toast("Account created successfully");
       router.push("/login");
     } catch (error) {
       console.log(error);
-      toast.toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Something went wrong",
-      });
+      toast("An error occurred");
     } finally {
       setLoading(false)
     }

@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
-import ChatSection from '@/app/(app)/user/(app)/chat/page'
+// import ChatSection from '@/app/(app)/user/(app)/chat/page'
 
 export default function ChatGroupTab() {
   const [chatActive, setChatActive] = React.useState(false)
@@ -35,7 +35,10 @@ export default function ChatGroupTab() {
           onClick={handleClick}
         >{!chatActive?"View Chat History":"Close Chat History"}</Button>
         <div className='mt-4'>
-          {chatActive && <ChatSection />}
+          {chatActive
+          //  && 
+          // <ChatSection />
+          }
         </div>
 
       </CardContent>

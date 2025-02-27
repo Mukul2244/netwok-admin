@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import React, { useState } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { BarChart2, MessageSquare, QrCode, Settings, Users } from "lucide-react"
@@ -12,7 +12,7 @@ import {
   RestaurantsTab
 } from "@/components/restOwner/index"
 import { Button } from '@/components/ui/button'
-import { useAuth } from '@/context/UserAuthContext'
+import { useAuth } from '@/context/AuthContext'
 import { logout } from '@/lib/logout'
 
 export default function RestaurantOwnerDashboard() {

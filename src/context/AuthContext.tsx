@@ -1,36 +1,67 @@
 "use client";
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, {createContext,useContext, useState,} from "react";
+// import fetchUser from "@/lib/fetchUser";
+// import getCookie from "@/lib/getCookie";
 
 const AuthContext = createContext<{
-  username: string;
-  setUsername: (username: string) => void;
+    _id: string;
+    setId: (id: string) => void;
+    email: string;
+    setEmail: (email: string) => void;
+    username: string;
+    setUsername: (username: string) => void;
+
 }>({
-  username: "",
-  setUsername: () => { },
+    _id: "",
+    setId: () => { },
+    email: "",
+    setEmail: () => { },
+    username: "",
+    setUsername: () => { },
 });
 
 const useAuth = () => useContext(AuthContext);
-const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
-  const [username, setUsername] = useState<string>("");
-  // const [token, setToken] = useState<string | null>(null);
 
-  useEffect(() => {
-    const storedUsername = localStorage.getItem("username");
-    if (storedUsername) {
-      setUsername(storedUsername);
-    }
-  }, []);
-  return (
-    <AuthContext.Provider
-      value={{
+const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
+    children,
+}) => {
+    const [_id, setId] = useState<string>("");
+    const [email, setEmail] = useState<string>("");
+    const [username, setUsername] = useState<string>("");
+
+    // useEffect(() => {
+    //     const fetchUserData = async () => {
+    //         const accessToken = await getCookie("accessToken");
+    //         if (accessToken) {
+    //             setIsLoggedIn(true);
+    //             // Fetch user data from the server
+    //             fetchUser()
+    //                 .then((user) => {
+    //                     setId(user._id);
+    //                     setEmail(user.email);
+    //                     setUsername(user.username);
+    //                 })
+    //                 .catch((err) => {
+    //                     console.log(err);
+    //                 });
+    //         } else {
+    //             setIsLoggedIn(false);
+    //         }
+    //     }
+
+    //     fetchUserData();
+    // });
+
+    const value = {
+        _id,
+        setId,
+        email,
+        setEmail,
         username,
         setUsername,
-      }}>
-      {children}
-    </AuthContext.Provider>
-  );
+    };
+
+    return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
 export { AuthProvider, useAuth };

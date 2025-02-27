@@ -27,13 +27,12 @@ import {
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
-import { useToast } from '@/hooks/use-toast'
+import { toast } from "sonner"
 import { PubRegisterSchema } from '@/schemas/PubRegisterSchema'
 import { UserInterface } from '@/interfaces/User'
 import api from '@/lib/axios'
 
 export default function RegisterPubTab() {
-  const toast = useToast()
   const [users, setUsers] = useState<UserInterface[]>([]);
   const form = useForm<z.infer<typeof PubRegisterSchema>>({
     resolver: zodResolver(PubRegisterSchema),
@@ -55,22 +54,15 @@ export default function RegisterPubTab() {
   const onSubmit = async (data: z.infer<typeof PubRegisterSchema>) => {
     try {
       await api.post("/restaurants/", data)
-
-      toast.toast({
-        variant: "default",
-        description: "You have successfully registered a new restaurant",
-      })
+      toast("You have successfully registered a new restaurant")
     } catch (error) {
       console.log(error)
-      toast.toast({
-        variant: "destructive",
-        description: "Something went wrong",
-      })
+      toast("Error in registering the restaurant")
     }
   }
   return (
-      <div className='flex justify-center'>
-        <Card className="w-full max-w-2xl bg-white shadow-xl rounded-xl overflow-hidden">
+    <div className='flex justify-center'>
+      <Card className="w-full max-w-2xl bg-white shadow-xl rounded-xl overflow-hidden">
         <CardHeader className="rounded-lg shadow m-4 ">
           <CardTitle>Restaurant Details</CardTitle>
           <CardDescription >Create a new restaurant</CardDescription>
@@ -134,7 +126,7 @@ export default function RegisterPubTab() {
         </CardContent>
       </Card>
 
-      </div>
+    </div>
 
   )
 }

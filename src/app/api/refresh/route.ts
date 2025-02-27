@@ -1,5 +1,5 @@
+import axios from "axios";
 import { NextRequest, NextResponse } from "next/server";
-import{ axiosInstance } from "@/lib/axios";
 
 export async function GET(req: NextRequest) {
   const { refresh } = await req.json();
@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
 
   try {
     // Send request to Django backend to refresh token
-    const response = await axiosInstance.post("/api/token/refresh/", {
+    const response = await axios.post("/api/token/refresh/", {
       refresh
     });
 

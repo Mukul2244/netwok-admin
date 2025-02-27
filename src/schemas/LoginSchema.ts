@@ -1,5 +1,5 @@
 import { z } from "zod"
-export const userLoginSchema = z.object({
+export const LoginSchema = z.object({
     username: z
       .string()
       .min(3, { message: "Username must be at least 3 characters" })

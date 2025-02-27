@@ -13,13 +13,13 @@ import {
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
-import { userLoginSchema } from '@/schemas/userLoginSchema'
 import { useRouter } from "next/navigation"
-import { useToast } from '@/hooks/use-toast'
+import { toast } from "sonner"
 import Link from 'next/link'
-import api from '@/lib/axios'
-import { useAuth } from '@/context/UserAuthContext'
 import axios from 'axios'
+import api from '@/lib/axios'
+import { useAuth } from '@/context/AuthContext'
+import { LoginSchema } from '@/schemas/LoginSchema'
 
 
 export default function Login() {
@@ -27,20 +27,18 @@ export default function Login() {
     setUsername,
     setEmail,
     setId,
-    setIsLoggedIn
   } = useAuth()
-  const toast = useToast()
   const router = useRouter()
   const [loading, setLoading] = useState(false)
-  const form = useForm<z.infer<typeof userLoginSchema>>({
-    resolver: zodResolver(userLoginSchema),
+  const form = useForm<z.infer<typeof LoginSchema>>({
+    resolver: zodResolver(LoginSchema),
     defaultValues: {
       username: "",
       password: ""
     },
   })
 
-  const handleLogin = async (data: z.infer<typeof userLoginSchema>) => {
+  const handleLogin = async (data: z.infer<typeof LoginSchema>) => {
     setLoading(true)
     try {
       const response = await api.post("/api/token/", data)
@@ -54,29 +52,16 @@ export default function Login() {
         refreshToken: response.data.refresh,
         isSuperuser: response.data.user.is_superuser
       })
-
-      // Update the login state
-      setIsLoggedIn(true)
-
       if (response.data.user.is_superuser) {
         router.push("/admin")
       } else {
-        router.push("/restaurant")
+        router.push("/")
       }
-
-      toast.toast({
-        variant: "default",
-        title: "Success",
-        description: "You have successfully logged in",
-      })
+      toast("Login successful")
 
     } catch (error) {
       console.log(error)
-      toast.toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Invalid username or password",
-      })
+      toast("Invalid username or password")
     } finally {
       setLoading(false)
     }

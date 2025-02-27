@@ -10,7 +10,7 @@ import {
   RegisterPubTab,
 } from '@/components/admin/index'
 import { Button } from '@/components/ui/button'
-import { useAuth } from '@/context/UserAuthContext'
+import { useAuth } from '@/context/AuthContext'
 import { logout } from '@/lib/logout'
 export default function PubChatPlatformOwnerDashboard() {
   const {

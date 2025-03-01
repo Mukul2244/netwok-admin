@@ -1,97 +1,126 @@
-"use client"
-import React from 'react'
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
-import { Switch } from "@/components/ui/switch"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { AlertCircle } from 'lucide-react'
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form"
-import { useForm } from "react-hook-form"
-import * as z from "zod"
-import { zodResolver } from "@hookform/resolvers/zod"
+"use client";
+import React, { useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { AlertCircle } from "lucide-react";
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/form";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { settingSchema } from "@/schemas/PubSettingSchema";
+import api from "@/lib/axios";
 
-const offerSchema = z.object({
-  description: z.string().nonempty("Description is required"),
-  isTimeBased: z.boolean(),
-  duration: z.string().optional(),
-})
-
-const settingsSchema = z.object({
-  restaurantName: z.string().nonempty("Restaurant name is required"),
-  restaurantDescription: z.string().optional(),
-  qrCodeGenerationFrequency: z.string().nonempty("QR code generation frequency is required"),
-  logo: z.string().optional(),
-  offers: z.array(offerSchema),
-})
-
-type SettingsFormValues = z.infer<typeof settingsSchema>
+type SettingsFormValues = z.infer<typeof settingSchema>;
 
 export default function SettingsTab() {
+  const [preview, setPreview] = useState<string | null>(null);
   const form = useForm<SettingsFormValues>({
-    resolver: zodResolver(settingsSchema),
+    resolver: zodResolver(settingSchema),
     defaultValues: {
-      restaurantName: 'The Tipsy Tavern',
-      restaurantDescription: '',
-      qrCodeGenerationFrequency: 'daily',
-      logo: '',
-      offers: [
-        {
-          description: '10% off on all orders',
-          isTimeBased: false,
-          duration: '',
-        },
-      ],
+      restaurantName: "",
+      restaurantDescription: "",
+      qrCodeGenerationFrequency: "",
+      logo: null,
+      offers: [],
     },
-  })
+  });
+  const { control, handleSubmit, setValue, getValues, watch } = form;
 
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
+    const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader()
-      reader.onload = () => form.setValue("logo", reader.result as string)
-      reader.readAsDataURL(file)
+      setValue("logo", file);
+      setPreview(URL.createObjectURL(file)); // Show preview
     }
-  }
+  };
 
   const addOffer = () => {
-    form.setValue("offers", [
-      ...form.getValues("offers"),
+    setValue("offers", [
+      ...getValues("offers"),
       {
-        description: '',
-        isTimeBased: false,
-        duration: '',
+        description: "",
+        time_based: false,
+        time_duration_hours: 0,
       },
-    ])
-  }
+    ]);
+  };
 
   const removeOffer = (index: number) => {
-    const updatedOffers = form.getValues("offers").filter((_, i) => i !== index)
-    form.setValue("offers", updatedOffers)
-  }
+    const updatedOffers = getValues("offers").filter((_, i) => i !== index);
+    setValue("offers", updatedOffers);
+  };
 
   const generateQRCode = () => {
     // Generate QR code
-  }
+  };
 
-  const saveRestaurantDetails = (data: SettingsFormValues) => {
-    // Save restaurant details
-    console.log(data)
-  }
+  const saveRestaurantDetails = async (data: SettingsFormValues) => {
+    console.log("Saving restaurant details:", data);
+    const formData = new FormData();
+    if (data.restaurantName) {
+      formData.append("name", data.restaurantName);
+    }
+    if (data.restaurantDescription) {
+      formData.append("description", data.restaurantDescription);
+    }
+    if (data.qrCodeGenerationFrequency) {
+      formData.append("qr_gen_frequency_text", data.qrCodeGenerationFrequency);
+    }
+    if (data.logo) {
+      formData.append("logo", data.logo);
+    }
+    if (data.offers) {
+      formData.append("offers", JSON.stringify(data.offers));
+    }
+
+    try {
+      const response = await api.patch("/restaurants/33/", formData);
+      console.log("Restaurant details saved successfully:", response.data);
+    } catch (error) {
+      console.error("Error saving restaurant details:", error);
+    }
+  };
 
   return (
     <Card className="col-span-4 bg-white shadow-lg rounded-lg overflow-hidden">
       <CardHeader className="bg-gradient-to-r from-pink-600 to-rose-600 text-white">
         <CardTitle>Restaurant Details</CardTitle>
-        <CardDescription className="text-pink-100">Update your restaurant information and offers</CardDescription>
+        <CardDescription className="text-pink-100">
+          Update your restaurant information and offers
+        </CardDescription>
       </CardHeader>
       <CardContent className="p-6">
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(saveRestaurantDetails)} className="space-y-6">
+          <form
+            onSubmit={handleSubmit(saveRestaurantDetails)}
+            className="space-y-6"
+          >
             <FormField
-              control={form.control}
+              control={control}
               name="restaurantName"
               render={({ field }) => (
                 <FormItem>
@@ -103,44 +132,57 @@ export default function SettingsTab() {
                 </FormItem>
               )}
             />
+
             <FormField
-              control={form.control}
+              control={control}
               name="restaurantDescription"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Description</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Describe your restaurant" {...field} />
+                    <Textarea
+                      placeholder="Describe your restaurant"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
+            {/* Logo */}
             <FormField
-              control={form.control}
+              control={control}
               name="logo"
-              render={({ field }) => (
+              render={() => (
                 <FormItem>
                   <FormLabel>Logo</FormLabel>
                   <div className="flex items-center space-x-4">
                     <Avatar className="h-24 w-24 border-4 border-white shadow-md">
-                      <AvatarImage src={field.value} alt="Restaurant logo" />
+                      <AvatarImage src={preview || ""} alt="Restaurant logo" />
                       <AvatarFallback>LOGO</AvatarFallback>
                     </Avatar>
-                    <Input type="file" onChange={handleLogoUpload} />
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleLogoUpload}
+                    />
                   </div>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
             <FormField
-              control={form.control}
+              control={control}
               name="qrCodeGenerationFrequency"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>QR Code Generation Frequency</FormLabel>
                   <FormControl>
-                    <Select value={field.value} onValueChange={field.onChange}>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
                       <SelectTrigger>
                         <SelectValue placeholder="Select frequency" />
                       </SelectTrigger>
@@ -156,42 +198,67 @@ export default function SettingsTab() {
                 </FormItem>
               )}
             />
+            {/* Offers */}
             <FormField
-              control={form.control}
+              control={control}
               name="offers"
-              render={({ field }) => (
+              render={() => (
                 <FormItem>
                   <FormLabel>Offers</FormLabel>
-                  {field.value.map((offer, index) => (
+                  {watch("offers").map((offer, index) => (
                     <div key={index} className="flex items-center space-x-2">
                       <FormControl>
                         <Input
                           placeholder={`Offer ${index + 1}`}
                           value={offer.description}
-                          onChange={(e) => form.setValue(`offers.${index}.description`, e.target.value)}
+                          onChange={(e) => {
+                            const offers = getValues("offers");
+                            offers[index].description = e.target.value;
+                            setValue("offers", [...offers]);
+                          }}
                         />
                       </FormControl>
                       <FormControl>
                         <Switch
-                          checked={offer.isTimeBased}
-                          onCheckedChange={(checked) => form.setValue(`offers.${index}.isTimeBased`, checked)}
+                          checked={offer.time_based}
+                          onCheckedChange={(checked) => {
+                            const offers = getValues("offers");
+                            offers[index].time_based = checked;
+                            offers[index].time_duration_hours = 0;
+                            setValue("offers", [...offers]);
+                          }}
                         />
                       </FormControl>
-                      {offer.isTimeBased && (
+                      {offer.time_based && (
                         <FormControl>
                           <Input
                             placeholder="Duration (e.g., 2 hours)"
-                            value={offer.duration}
-                            onChange={(e) => form.setValue(`offers.${index}.duration`, e.target.value)}
+                            value={offer.time_duration_hours}
+                            onChange={(e) => {
+                              const offers = getValues("offers");
+                              offers[index].time_duration_hours = Number(e.target.value);
+                              setValue("offers", [...offers]);
+                            }}
                           />
                         </FormControl>
                       )}
-                      <Button type="button" variant="outline" size="icon" onClick={() => removeOffer(index)} className="text-rose-500 hover:text-rose-600">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        onClick={() => removeOffer(index)}
+                        className="text-rose-500 hover:text-rose-600"
+                      >
                         <AlertCircle className="h-4 w-4" />
                       </Button>
                     </div>
                   ))}
-                  <Button type="button" variant="outline" onClick={addOffer} className="mt-2 text-pink-600 hover:text-pink-700 border-pink-300 hover:border-pink-400">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={addOffer}
+                    className="mt-2 text-pink-600 hover:text-pink-700 border-pink-300 hover:border-pink-400"
+                  >
                     Add Offer
                   </Button>
                   <FormMessage />
@@ -199,10 +266,18 @@ export default function SettingsTab() {
               )}
             />
             <div className="flex justify-between">
-              <Button type="button" variant="outline" onClick={generateQRCode} className="bg-white text-pink-600 hover:bg-pink-50">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={generateQRCode}
+                className="bg-white text-pink-600 hover:bg-pink-50"
+              >
                 Generate New QR Code
               </Button>
-              <Button type="submit" className="bg-gradient-to-r from-pink-500 to-rose-500 text-white hover:from-pink-600 hover:to-rose-600">
+              <Button
+                type="submit"
+                className="bg-gradient-to-r from-pink-500 to-rose-500 text-white hover:from-pink-600 hover:to-rose-600"
+              >
                 Save Changes
               </Button>
             </div>
@@ -210,6 +285,5 @@ export default function SettingsTab() {
         </Form>
       </CardContent>
     </Card>
-  )
+  );
 }
-

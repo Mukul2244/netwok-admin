@@ -2,11 +2,10 @@ import React, { useEffect, useState } from "react";
 import api from "@/lib/axios";
 
 export default function RestaurantsTab() {
-  const [restaurants, setRestaurants] = useState<
-    {
-      id: number;
-      name: string;
-    }[]
+  const [restaurants, setRestaurants] = useState<{
+    id: number;
+    name: string;
+  }[]
   >([]);
 
   useEffect(() => {

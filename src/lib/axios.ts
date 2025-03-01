@@ -4,7 +4,7 @@ import getCookie from "@/lib/getCookie";
 const api = axios.create({
   baseURL: "https://rk4huq4sfe.execute-api.eu-north-1.amazonaws.com",
   headers: {
-    "Content-Type": "application/json",
+    "Content-Type": "multipart/form-data",
   },
 });
 

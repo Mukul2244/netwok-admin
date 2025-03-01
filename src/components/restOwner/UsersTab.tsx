@@ -5,8 +5,6 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { UserInterface } from '@/interfaces/User'
 import api from '@/lib/axios'
-
-
 export default function UsersTab() {
   const [selectedUser, setSelectedUser] = useState<UserInterface[]>([])
 
@@ -19,7 +17,6 @@ export default function UsersTab() {
         username: usernames[index],
     }));
     setSelectedUser(mergedCustomers);
-    console.log(mergedCustomers);
   }
   useEffect(() => {
     fetchUsers();

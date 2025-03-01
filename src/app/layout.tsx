@@ -1,5 +1,5 @@
-import { Toaster } from '@/components/ui/sonner'
 import './globals.css'
+import { Toaster } from '@/components/ui/sonner'
 import { AuthProvider } from "@/context/AuthContext"
 export default function RootLayout({
   children,

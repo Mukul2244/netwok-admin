@@ -50,7 +50,7 @@ export default function RestaurantOwnerDashboard() {
           <p className="text-xl text-gray-600">Manage your restaurant with ease</p>
         </header>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
-          <TabsList className="inline-flex bg-white p-1 rounded-lg shadow-md">
+          <TabsList className="grid md:grid-cols-7 grid-cols-4 gap-2 bg-white p-1 rounded-lg shadow-md">
             <TabsTrigger value="restaurants" onClick={() => setActiveTab('restaurants')} className="px-4 py-2 rounded-md transition-all duration-300 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-indigo-500 data-[state=active]:text-white">
               <BarChart2 className="mr-2 h-5 w-5" />
               Restaurants

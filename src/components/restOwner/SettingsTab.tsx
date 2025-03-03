@@ -74,9 +74,9 @@ export default function SettingsTab() {
     setValue("offers", updatedOffers);
   };
 
-  const generateQRCode = () => {
-    // Generate QR code
-  };
+  // const generateQRCode = () => {
+  //   // Generate QR code
+  // };
 
   const saveRestaurantDetails = async (data: SettingsFormValues) => {
     console.log("Saving restaurant details:", data);
@@ -265,15 +265,15 @@ export default function SettingsTab() {
                 </FormItem>
               )}
             />
-            <div className="flex justify-between">
-              <Button
+            <div className="flex justify-end">
+              {/* <Button
                 type="button"
                 variant="outline"
                 onClick={generateQRCode}
                 className="bg-white text-pink-600 hover:bg-pink-50"
               >
                 Generate New QR Code
-              </Button>
+              </Button> */}
               <Button
                 type="submit"
                 className="bg-gradient-to-r from-pink-500 to-rose-500 text-white hover:from-pink-600 hover:to-rose-600"

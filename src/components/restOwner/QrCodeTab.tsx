@@ -46,7 +46,7 @@ export default function QrCodeTab() {
         <div className="flex justify-center flex-col items-center ">
           <div className="flex items-center justify-center w-64 h-64 bg-white rounded-lg shadow-lg mb-6">
             <QRCodeSVG
-              value="https://pub-network-user.vercel.app/"
+              value={`pub-network-customer.vercel.app/register?restaurantId=33&qrCodeNumber=${qrCodeNumber}`}
               className="w-48 h-48 text-emerald-500"
             />
           </div>

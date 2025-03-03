@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import  { useState, useEffect, useCallback } from 'react';
 
 export default function Timer({ expiryDate }: { expiryDate: string }) {
   const [remainingTime, setRemainingTime] = useState("00:00");
@@ -31,8 +31,6 @@ export default function Timer({ expiryDate }: { expiryDate: string }) {
     return () => clearInterval(timer);
   }, [expiryDate, updateRemainingTime]);
 
-  return (
-    <span>{remainingTime}</span>
-  );
+  return remainingTime;
 }
 

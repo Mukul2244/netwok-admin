@@ -14,24 +14,42 @@ import { RefreshCw } from "lucide-react";
 import Timer from "@/components/Timer";
 import { QRCodeSVG } from "qrcode.react";
 import api from "@/lib/axios";
+import { toast } from "sonner";
+
 export default function QrCodeTab() {
   const [restaurantName, setRestaurantName] = useState("Restaurant Name");
   const [logo, setLogo] = useState("");
   const [qrCodeNumber, setQrCodeNumber] = useState("");
   const [expiryTime, setExpiryTime] = useState("");
+
   const fetchData = async () => {
-    const response = await api.get("/restaurants/33/");
-    setRestaurantName(response.data.name);
-    setLogo(response.data.logo);
-    setQrCodeNumber(response.data.var_id);
-    setExpiryTime(response.data.var_id_expiry_time);
+    try {
+      const response = await api.get("/restaurants/33/");
+      setRestaurantName(response.data.name);
+      setLogo(response.data.logo);
+      setQrCodeNumber(response.data.var_id);
+      setExpiryTime(response.data.var_id_expiry_time);
+    } catch (error) {
+      console.error("Error fetching restaurant data:", error);
+    }
   };
+
   useEffect(() => {
     fetchData();
   }, []);
 
-  const generateQRCode = () => {
-    // Generate QR code
+  const generateQRCode = async () => {
+    try {
+      const response = await api.post("/api/trigger-var-id-update/", {
+        restaurant_id: 33,
+      });
+      setQrCodeNumber(response.data.restaurant.var_id);
+      setExpiryTime(response.data.restaurant.var_id_expiry_time);
+      toast("QR code changed successfully");
+    } catch (error) {
+      console.error("Error generating new QR code:", error);
+      toast("Something went wrong while changing the QR code. Please try again after some time.");
+    }
   };
 
   return (
@@ -54,7 +72,7 @@ export default function QrCodeTab() {
             {qrCodeNumber}
           </div>
           <div className="text-2xl mb-6 text-emerald-600">
-            Time until reset: <Timer expiryDate ={expiryTime} />
+            Time until reset: <Timer key={expiryTime} expiryDate={expiryTime} />
           </div>
           <div className="flex items-center space-x-6 bg-white p-4 rounded-lg shadow-md">
             <Avatar className="h-20 w-20 border-4 border-emerald-200">

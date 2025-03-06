@@ -22,9 +22,11 @@ export default function QrCodeTab() {
   const [qrCodeNumber, setQrCodeNumber] = useState("");
   const [expiryTime, setExpiryTime] = useState("");
 
+  const restaurantId = localStorage.getItem("restaurantId")
   const fetchData = async () => {
     try {
-      const response = await api.get("/restaurants/33/");
+      if (!restaurantId) return
+      const response = await api.get(`/restaurants/${restaurantId}/`)
       setRestaurantName(response.data.name);
       setLogo(response.data.logo);
       setQrCodeNumber(response.data.var_id);
@@ -40,8 +42,9 @@ export default function QrCodeTab() {
 
   const generateQRCode = async () => {
     try {
+      if (!restaurantId) return
       const response = await api.post("/api/trigger-var-id-update/", {
-        restaurant_id: 33,
+        restaurant_id: restaurantId,
       });
       setQrCodeNumber(response.data.restaurant.var_id);
       setExpiryTime(response.data.restaurant.var_id_expiry_time);
@@ -51,7 +54,11 @@ export default function QrCodeTab() {
       toast("Something went wrong while changing the QR code. Please try again after some time.");
     }
   };
-
+  if (!restaurantId) return (
+    <div>
+      <h1>Restaurant not found</h1>
+    </div>
+  )
   return (
     <Card className="col-span-4 bg-white shadow-lg rounded-lg overflow-hidden">
       <CardHeader className="bg-gradient-to-r from-emerald-500 to-green-600 text-white">
@@ -64,7 +71,7 @@ export default function QrCodeTab() {
         <div className="flex justify-center flex-col items-center ">
           <div className="flex items-center justify-center w-64 h-64 bg-white rounded-lg shadow-lg mb-6">
             <QRCodeSVG
-              value={`pub-network-customer.vercel.app/register?restaurantId=33&qrCodeNumber=${qrCodeNumber}`}
+              value={`pub-network-customer.vercel.app/register?restaurantId=${restaurantId}&qrCodeNumber=${qrCodeNumber}`}
               className="w-48 h-48 text-emerald-500"
             />
           </div>

@@ -10,17 +10,23 @@ export default function DashboardTab() {
   const [totalGroupMessages, setTotalGroupMessages] = useState(0)
   const [totalQrCodeScans, setTotalQrCodeScans] = useState(0)
 
+  const restaurantId = localStorage.getItem("restaurantId")
+  const fetchData = async () => {
+    if(!restaurantId) return
+    const response = await api.get(`/restaurants/${restaurantId}/`)
+    setTotalCustomers(response.data.total_customers)
+    setAverageStayTime(response.data.avg_stay_time)
+    setTotalGroupMessages(response.data.total_messages)
+    setTotalQrCodeScans(response.data.total_qr_scanned)
+  }
   useEffect(() => {
-    const fetchData = async () => {
-      const response = await api.get("/restaurants/33/")
-      setTotalCustomers(response.data.total_customers)
-      setAverageStayTime(response.data.avg_stay_time)
-      setTotalGroupMessages(response.data.total_messages)
-      setTotalQrCodeScans(response.data.total_qr_scanned)
-    }
     fetchData()
   }, [])
-
+  if (!restaurantId) return (
+    <div>
+      <h1>Restaurant not found</h1>
+    </div>
+  )
   return (
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         <Card className="bg-gradient-to-br from-purple-500 to-indigo-600 text-white">

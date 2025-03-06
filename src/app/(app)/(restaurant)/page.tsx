@@ -30,6 +30,7 @@ export default function RestaurantOwnerDashboard() {
 
     // Clear the user data from local storage
     localStorage.removeItem('id')
+    localStorage.removeItem('restaurantId')
 
     // clear cookies
     await logout()

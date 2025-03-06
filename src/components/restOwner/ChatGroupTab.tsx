@@ -11,6 +11,8 @@ export default function ChatGroupTab() {
     setChatActive(!chatActive)
   }
 
+  const restaurantId = localStorage.getItem("restaurantId")
+  if (!restaurantId) return null
 
   return (
     <Card className="col-span-4 bg-white shadow-lg rounded-lg overflow-hidden">

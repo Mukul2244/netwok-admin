@@ -49,6 +49,7 @@ export default function SettingsTab() {
     },
   });
   const { control, handleSubmit, setValue, getValues, watch } = form;
+  const restaurantId = localStorage.getItem("restaurantId");
 
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -74,36 +75,29 @@ export default function SettingsTab() {
     setValue("offers", updatedOffers);
   };
 
-  // const generateQRCode = () => {
-  //   // Generate QR code
-  // };
-
   const saveRestaurantDetails = async (data: SettingsFormValues) => {
-    console.log("Saving restaurant details:", data);
     const formData = new FormData();
-    if (data.restaurantName) {
-      formData.append("name", data.restaurantName);
-    }
-    if (data.restaurantDescription) {
-      formData.append("description", data.restaurantDescription);
-    }
-    if (data.qrCodeGenerationFrequency) {
-      formData.append("qr_gen_frequency_text", data.qrCodeGenerationFrequency);
-    }
+    formData.append("name", data.restaurantName);
+    formData.append("description", data.restaurantDescription);
+    formData.append("qr_gen_frequency_text", data.qrCodeGenerationFrequency);
+    formData.append("offers", JSON.stringify(data.offers));
     if (data.logo) {
       formData.append("logo", data.logo);
     }
-    if (data.offers) {
-      formData.append("offers", JSON.stringify(data.offers));
-    }
 
     try {
-      const response = await api.patch("/restaurants/33/", formData);
+      const response = await api.patch(`/restaurants/${restaurantId}/`, formData);
       console.log("Restaurant details saved successfully:", response.data);
     } catch (error) {
       console.error("Error saving restaurant details:", error);
     }
   };
+
+  if (!restaurantId) return (
+    <div>
+      <h1>Restaurant not found</h1>
+    </div>
+  );
 
   return (
     <Card className="col-span-4 bg-white shadow-lg rounded-lg overflow-hidden">
@@ -198,7 +192,7 @@ export default function SettingsTab() {
                 </FormItem>
               )}
             />
-            {/* Offers */}
+
             <FormField
               control={control}
               name="offers"
@@ -266,14 +260,6 @@ export default function SettingsTab() {
               )}
             />
             <div className="flex justify-end">
-              {/* <Button
-                type="button"
-                variant="outline"
-                onClick={generateQRCode}
-                className="bg-white text-pink-600 hover:bg-pink-50"
-              >
-                Generate New QR Code
-              </Button> */}
               <Button
                 type="submit"
                 className="bg-gradient-to-r from-pink-500 to-rose-500 text-white hover:from-pink-600 hover:to-rose-600"

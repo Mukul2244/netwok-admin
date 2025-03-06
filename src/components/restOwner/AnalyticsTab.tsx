@@ -3,6 +3,8 @@ import { Card, CardContent,CardHeader, CardTitle } from "@/components/ui/card"
 import { BarChart2 } from 'lucide-react'
 
 export default function AnalyticsTab () {
+  const restaurantId = localStorage.getItem("restaurantId")
+  if (!restaurantId) return null
   return (
     <Card className="col-span-4 bg-white shadow-lg rounded-lg overflow-hidden">
       <CardHeader className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white">

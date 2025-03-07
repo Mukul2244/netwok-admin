@@ -77,10 +77,19 @@ export default function SettingsTab() {
 
   const saveRestaurantDetails = async (data: SettingsFormValues) => {
     const formData = new FormData();
-    formData.append("name", data.restaurantName);
-    formData.append("description", data.restaurantDescription);
-    formData.append("qr_gen_frequency_text", data.qrCodeGenerationFrequency);
-    formData.append("offers", JSON.stringify(data.offers));
+    if (data.restaurantName) {
+      formData.append("name", data.restaurantName);
+    }
+    if (data.restaurantDescription) {
+      formData.append("description", data.restaurantDescription);
+    }
+    if (data.qrCodeGenerationFrequency) {
+      formData.append("qr_gen_frequency_text", data.qrCodeGenerationFrequency);
+    }
+    if (data.offers) {
+      formData.append("offers", JSON.stringify(data.offers));
+
+    }
     if (data.logo) {
       formData.append("logo", data.logo);
     }

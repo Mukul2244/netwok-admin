@@ -87,7 +87,7 @@ export default function RestaurantOwnerDashboard() {
           <TabsContent value="dashboard" className="space-y-8">
             <DashboardTab />
             <AnalyticsTab />
-            <ChatGroupTab />
+            {/* <ChatGroupTab /> */}
           </TabsContent>
           <TabsContent value="analytics" className="space-y-8">
             <AnalyticsTab />

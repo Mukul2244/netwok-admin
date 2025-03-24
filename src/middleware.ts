@@ -10,11 +10,6 @@ export async function middleware(req: NextRequest) {
   if (!accessToken) {
     return NextResponse.redirect(new URL("/login", req.url));
   }
-
-  if (path === "/login" || path === "/register") {
-    
-  }
-
   if (path.startsWith("/admin") && !isSuperUser) {
     return NextResponse.redirect(new URL("/", req.url));
   }

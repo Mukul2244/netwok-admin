@@ -23,22 +23,23 @@ export default function QrCodeTab() {
   const [expiryTime, setExpiryTime] = useState("");
 
   const restaurantId = localStorage.getItem("restaurantId")
-  const fetchData = async () => {
-    try {
-      if (!restaurantId) return
-      const response = await api.get(`/restaurants/${restaurantId}/`)
-      setRestaurantName(response.data.name);
-      setLogo(response.data.logo);
-      setQrCodeNumber(response.data.var_id);
-      setExpiryTime(response.data.var_id_expiry_time);
-    } catch (error) {
-      console.error("Error fetching restaurant data:", error);
-    }
-  };
+
 
   useEffect(() => {
+    const fetchData = async () => {
+      try {
+        if (!restaurantId) return
+        const response = await api.get(`/restaurants/${restaurantId}/`)
+        setRestaurantName(response.data.name);
+        setLogo(response.data.logo);
+        setQrCodeNumber(response.data.var_id);
+        setExpiryTime(response.data.var_id_expiry_time);
+      } catch (error) {
+        console.error("Error fetching restaurant data:", error);
+      }
+    };
     fetchData();
-  }, []);
+  }, [restaurantId]);
 
   const generateQRCode = async () => {
     try {
@@ -71,7 +72,7 @@ export default function QrCodeTab() {
         <div className="flex justify-center flex-col items-center ">
           <div className="flex items-center justify-center w-64 h-64 bg-white rounded-lg shadow-lg mb-6">
             <QRCodeSVG
-              value={`pub-network-customer.vercel.app/register?restaurantId=${restaurantId}&qrCodeNumber=${qrCodeNumber}`}
+              value={`https://users.netwok.app/register?restaurantId=${restaurantId}&qrCodeNumber=${qrCodeNumber}`}
               className="w-48 h-48 text-emerald-500"
             />
           </div>

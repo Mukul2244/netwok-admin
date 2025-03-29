@@ -6,8 +6,10 @@ export default function RestaurantsTab() {
   const [restaurants, setRestaurants] = useState<{
     id: number;
     name: string;
+    var_id: string;
   }[]>([]);
   const [selectedRestaurantId, setSelectedRestaurantId] = useState<string | null>(null);
+  const [qrCodeNUmber, setQrCodeNumber] = useState<string | null>(null);
 
   const fetchRestaurants = async () => {
     try {
@@ -15,8 +17,11 @@ export default function RestaurantsTab() {
       const response = await api.get(`/restaurants/?owner=${id}`);
       setRestaurants(response.data);
       // Check if a restaurant is already selected
-      const restaurantId = localStorage.getItem("selectedRestaurantId");
-      if (restaurantId) {
+      const restaurantId = localStorage.getItem("restaurantId");
+      const qrCodeNumber = localStorage.getItem("qrCodeNumber");
+
+      if (restaurantId && qrCodeNumber) {
+        setQrCodeNumber(qrCodeNumber);
         setSelectedRestaurantId(restaurantId);
       }
     } catch (error) {
@@ -26,14 +31,20 @@ export default function RestaurantsTab() {
 
   useEffect(() => {
     const selectedRestaurantId = localStorage.getItem("restaurantId");
-    setSelectedRestaurantId(selectedRestaurantId);
+    const qrCodeNumber = localStorage.getItem("qrCodeNumber");
+    if (selectedRestaurantId && qrCodeNumber) {
+      setQrCodeNumber(qrCodeNumber);
+      setSelectedRestaurantId(selectedRestaurantId);
+    }
     // Fetch restaurants when the component mounts
     fetchRestaurants();
   }, []);
 
-  const handleSelectRestaurant = (restaurantId: number) => {
+  const handleSelectRestaurant = (restaurantId: number, qrCodeNumber: string) => {
     localStorage.setItem("restaurantId", restaurantId.toString());
     setSelectedRestaurantId(restaurantId.toString());
+    localStorage.setItem("qrCodeNumber", qrCodeNumber.toString());
+    setQrCodeNumber(qrCodeNUmber);
   };
 
   return (
@@ -50,7 +61,7 @@ export default function RestaurantsTab() {
               <h2 className="text-lg font-bold">{restaurant.name}</h2>
               <Button
                 className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-md"
-                onClick={() => handleSelectRestaurant(restaurant.id)}
+                onClick={() => handleSelectRestaurant(restaurant.id, restaurant.var_id)}
               >
                 Select Restaurant
               </Button>

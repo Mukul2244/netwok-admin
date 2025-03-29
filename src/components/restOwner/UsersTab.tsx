@@ -9,20 +9,20 @@ export default function UsersTab() {
   const [selectedUser, setSelectedUser] = useState<UserInterface[]>([])
 
   const restaurantId = localStorage.getItem("restaurantId")
-  const fetchUsers = async () => {
-    if (!restaurantId) return
-    const response = await api.get(`/restaurants/${restaurantId}/`)
-    const ids = response.data.customers;
-    const usernames = response.data.customers_usernames;
-    const mergedCustomers = ids.map((id: number, index: number) => ({
-      id: id,
-      username: usernames[index],
-    }));
-    setSelectedUser(mergedCustomers);
-  }
   useEffect(() => {
+    const fetchUsers = async () => {
+      if (!restaurantId) return
+      const response = await api.get(`/restaurants/${restaurantId}/`)
+      const ids = response.data.customers;
+      const usernames = response.data.customers_usernames;
+      const mergedCustomers = ids.map((id: number, index: number) => ({
+        id: id,
+        username: usernames[index],
+      }));
+      setSelectedUser(mergedCustomers);
+    }
     fetchUsers();
-  }, [])
+  }, [restaurantId])
 
   if (!restaurantId) return (
     <div>

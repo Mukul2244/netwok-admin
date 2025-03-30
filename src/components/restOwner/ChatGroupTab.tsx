@@ -5,7 +5,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Send, Sparkles } from "lucide-react";
-import { useAuth } from "@/context/AuthContext";
 import { useSocket } from "@/context/SocketContext";
 import axiosInstance from "@/lib/axios";
 import getCookie from "@/lib/getCookie";
@@ -20,11 +19,11 @@ function ChatSection() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState("");
   const [loading, setLoading] = useState(true);
-  const { username } = useAuth();
   const { socket, setSocket } = useSocket();
   const socketRef = useRef<WebSocket | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null); // Ref for the scrollable container
   const restaurantId = localStorage.getItem("restaurantId");
+  const username= localStorage.getItem("username");
 
   const handleConnection = useCallback(async () => {
     try {
@@ -35,7 +34,7 @@ function ChatSection() {
         return;
       }
 
-      const response = await axiosInstance.get(`/group-chat/?restaurant=${restaurantId}&orderBy = desc`);
+      const response = await axiosInstance.get(`/group-chat/?restaurant=${restaurantId}&ordering=timestamp`);
       setMessages(response.data);
 
       const token = await getCookie("accessToken");
@@ -139,7 +138,7 @@ function ChatSection() {
                 >
                   <p className="font-semibold">{msg.sender_username === username ? "You" : msg.sender_username}</p>
                   <p className="text-sm">{msg.text}</p>
-                  <p className="text-xs text-gray-400 mt-1">{formatTimestamp(msg.timestamp)}</p>
+                  <p className="text-xs text-black mt-1">{formatTimestamp(msg.timestamp)}</p>
                 </div>
               </div>
             ))}

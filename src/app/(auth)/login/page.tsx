@@ -41,8 +41,10 @@ export default function Login() {
     setLoading(true)
     try {
       const response = await api.post("/api/token/", data)
-      setId(response.data.user.id)
       localStorage.setItem('id', response.data.user.id)
+      localStorage.setItem('username', response.data.user.username)
+      localStorage.setItem('email', response.data.user.email)
+      setId(response.data.user.id)
       setUsername(response.data.user.username)
       setEmail(response.data.user.email)
       

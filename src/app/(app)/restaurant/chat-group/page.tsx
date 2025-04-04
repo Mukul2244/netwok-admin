@@ -1,6 +1,12 @@
 "use client";
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -9,22 +15,31 @@ import { useSocket } from "@/context/SocketContext";
 import axiosInstance from "@/lib/axios";
 import getCookie from "@/lib/getCookie";
 
+// Interfaces
 interface Message {
   sender_username: string;
   text: string;
+  sender: number;
   timestamp: string;
 }
+interface ChatSectionProps {
+  userId: number;
+  restaurantId: string;
+}
 
-function ChatSection() {
+
+function ChatSection({  restaurantId, userId}: ChatSectionProps) {
+  // Load before render
+
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState("");
   const [loading, setLoading] = useState(true);
+
   const { socket, setSocket } = useSocket();
   const socketRef = useRef<WebSocket | null>(null);
-  const scrollRef = useRef<HTMLDivElement | null>(null); // Ref for the scrollable container
-  const restaurantId = localStorage.getItem("restaurantId");
-  const username= localStorage.getItem("username");
+  const scrollRef = useRef<HTMLDivElement | null>(null);
 
+  // Fetch messages and establish WebSocket connection
   const handleConnection = useCallback(async () => {
     try {
       const qrCodeNumber = localStorage.getItem("qrCodeNumber");
@@ -34,7 +49,9 @@ function ChatSection() {
         return;
       }
 
-      const response = await axiosInstance.get(`/group-chat/?restaurant=${restaurantId}&ordering=timestamp`);
+      const response = await axiosInstance.get(
+        `/group-chat/?restaurant=${restaurantId}&ordering=timestamp`
+      );
       setMessages(response.data);
 
       const token = await getCookie("accessToken");
@@ -43,7 +60,9 @@ function ChatSection() {
         return;
       }
 
-      const ws = new WebSocket(`wss://api.netwok.app/ws/group/${restaurantId}/${qrCodeNumber}/${token}/`);
+      const ws = new WebSocket(
+        `wss://api.netwok.app/ws/group/${restaurantId}/${qrCodeNumber}/${token}/`
+      );
 
       socketRef.current = ws;
       setSocket(ws);
@@ -55,7 +74,8 @@ function ChatSection() {
 
       ws.onmessage = (event) => {
         const message = JSON.parse(event.data);
-        setMessages((prevMessages) => [...prevMessages, message]); // Append new messages
+        console.log("New message:", message);
+        setMessages((prevMessages) => [...prevMessages, message]);
       };
 
       ws.onerror = (error) => {
@@ -71,31 +91,33 @@ function ChatSection() {
     }
   }, [restaurantId, setSocket]);
 
+  // Manage WebSocket lifecycle
   useEffect(() => {
     handleConnection();
     return () => {
       if (socketRef.current) {
         socketRef.current.close();
         setSocket(null);
-        console.log("WebSocket connection closed");
       }
     };
   }, [handleConnection, setSocket]);
 
-  // Scroll to the bottom whenever messages are updated
+  // Scroll to the bottom when messages are updated
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages]);
 
+  // Send a message
   const handleSendMessage = useCallback(() => {
-    if (inputText.trim() !== "" && socket && socket.readyState === WebSocket.OPEN) {
+    if (inputText.trim() && socket && socket.readyState === WebSocket.OPEN) {
       socket.send(JSON.stringify({ message: inputText }));
       setInputText("");
     }
   }, [inputText, socket]);
 
+  // AI-generated message suggestions
   const handleAIAssist = () => {
     const aiSuggestions = [
       "Anyone fancy trying that new IPA they just got in? 🍻",
@@ -107,58 +129,72 @@ function ChatSection() {
 
   const formatTimestamp = (timestamp: string) => {
     const date = new Date(timestamp);
-    return date.toLocaleString(); // Format as "MM/DD/YYYY, HH:MM:SS"
+    return date.toLocaleString();
   };
 
   if (loading) {
-    return <p className="text-center text-gray-500">Loading chat...</p>;
+    return <p className="text-center text-zinc-500">Loading chat...</p>;
   }
 
   return (
-    <div className="flex-col flex-1 shadow-md transition-all duration-300 space-y-4 flex mb-4 p-4 bg-gradient-to-br from-cyan-100 to-blue-100 rounded-lg">
+    <div className="flex flex-col flex-1 shadow-md transition-all duration-300 space-y-4 mb-4 p-4 bg-gradient-to-br from-zinc-50 to-zinc-100 dark:from-zinc-900 dark:to-zinc-800 rounded-lg">
       <div
-        ref={scrollRef} // Attach the scrollable container to the ref
+        ref={scrollRef}
         className="flex-1 min-h-[300px] max-h-[400px] overflow-y-auto"
       >
         {messages.length === 0 ? (
-          <p className="text-center text-blue-500">No messages yet</p>
+          <p className="text-center text-zinc-500 dark:text-zinc-400">
+            No messages yet
+          </p>
         ) : (
           <ScrollArea className="space-y-4">
-            {messages.map((msg, index) => (
+            {messages.map((msg, index) => {
+               const isSentByMe = msg.sender === userId;
+               return(
               <div
                 key={index}
-                className={`mb-4 flex ${msg.sender_username === username ? "justify-end" : "justify-start"} animate-fade-in-up`}
+                className={`mb-4 flex ${
+                  isSentByMe
+                    ? "justify-end"
+                    : "justify-start"
+                } animate-fade-in-up`}
               >
                 <div
                   className={`max-w-[80%] p-4 rounded-2xl shadow-lg transition-all duration-300 ${
-                    msg.sender_username === username
-                      ? "bg-gradient-to-r from-cyan-500 to-blue-500 text-white"
-                      : "bg-white text-blue-800"
+                    isSentByMe
+                      ? "bg-gradient-to-r from-zinc-500 to-zinc-600 text-white"
+                      : "bg-white text-zinc-800 dark:bg-zinc-800 dark:text-zinc-300"
                   } hover:shadow-xl`}
                 >
-                  <p className="font-semibold">{msg.sender_username === username ? "You" : msg.sender_username}</p>
+                  <p className="font-semibold">
+                    { isSentByMe
+                      ? "You"
+                      : msg.sender_username}
+                  </p>
                   <p className="text-sm">{msg.text}</p>
-                  <p className="text-xs text-black mt-1">{formatTimestamp(msg.timestamp)}</p>
+                  <p className="text-xs mt-1">
+                    {formatTimestamp(msg.timestamp)}
+                  </p>
                 </div>
               </div>
-            ))}
+            )})}
           </ScrollArea>
         )}
       </div>
-      <div className="p-4 bg-white/90 backdrop-blur-md border-t border-blue-200 rounded-b-2xl shadow-sm">
+      <div className="p-4 bg-background backdrop-blur-md border-t border-zinc-200 dark:border-zinc-700 rounded-b-2xl shadow-sm">
         <div className="flex items-center space-x-3">
           <Input
             placeholder="Type your message..."
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
-            className="flex-1 border-blue-300 focus:border-blue-500 focus:ring-blue-500 rounded-full transition-all duration-300"
+            className="flex-1 border-zinc-300 focus:border-zinc-500 focus:ring-zinc-500 rounded-full transition-all duration-300"
           />
           <Button
             onClick={handleAIAssist}
             variant="outline"
             size="icon"
-            className="text-blue-500 border-blue-300 hover:bg-blue-100 rounded-full transition-all duration-300"
+            className="text-zinc-500 border-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-full transition-all duration-300"
           >
             <Sparkles className="h-5 w-5" />
             <span className="sr-only">AI assist</span>
@@ -166,7 +202,7 @@ function ChatSection() {
           <Button
             onClick={handleSendMessage}
             size="icon"
-            className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white hover:from-cyan-600 hover:to-blue-600 rounded-full"
+            className="bg-gradient-to-r from-zinc-500 to-zinc-600 text-white hover:from-zinc-600 hover:to-zinc-700 dark:from-zinc-700 dark:to-zinc-800 dark:hover:from-zinc-800 dark:hover:to-zinc-900 rounded-full"
           >
             <Send className="h-5 w-5" />
             <span className="sr-only">Send message</span>
@@ -178,19 +214,54 @@ function ChatSection() {
 }
 
 export default function ChatGroupTab() {
-  const restaurantId = localStorage.getItem("restaurantId");
-  if (!restaurantId) return <p className="text-center text-gray-500">No restaurant selected</p>;
+  const [userId, setUserId] = useState<number | null>(null);
+  const [restaurantId, setRestaurantId] = useState<string | null>(null);
+  const [loaded, setLoaded] = useState(false); // Prevent hydration mismatch
+
+  useEffect(() => {
+    const storedRestaurantId = localStorage.getItem("restaurantId");
+    const storedUser = localStorage.getItem("user");
+
+    if (storedRestaurantId) {
+      setRestaurantId(storedRestaurantId);
+    }
+
+    if (storedUser) {
+      try {
+        const parsedUser = JSON.parse(storedUser);
+        setUserId(parsedUser?.id ?? null);
+      } catch (err) {
+        console.error("Error parsing user:", err);
+      }
+    }
+
+    setLoaded(true);
+  }, []);
+
+  if (!loaded) return null; // Avoid hydration issues
+
+  if (!restaurantId || !userId) {
+    return (
+      <div className="text-center p-8">
+        <h1 className="text-2xl font-bold text-foreground">Missing Info</h1>
+        <p className="text-muted-foreground">
+          Please make sure you&apos;re logged in and have selected a restaurant.
+        </p>
+      </div>
+    );
+  }
 
   return (
-    <Card className="col-span-4 bg-white shadow-lg rounded-lg overflow-hidden">
-      <CardHeader className="bg-gradient-to-r from-cyan-600 to-blue-600 text-white">
+    <Card className="col-span-4 bg-background shadow-lg rounded-lg overflow-hidden">
+      <CardHeader className="bg-gradient-to-r from-zinc-500 to-zinc-600 text-white dark:from-zinc-700 dark:to-zinc-800">
         <CardTitle>Restaurant Chat Group</CardTitle>
-        <CardDescription className="text-cyan-100">Monitor ongoing conversations in your restaurant</CardDescription>
+        <CardDescription className="text-zinc-100 dark:text-zinc-200">
+          Monitor ongoing conversations in your restaurant
+        </CardDescription>
       </CardHeader>
       <CardContent className="p-6">
-        <ChatSection />
+        <ChatSection userId={userId} restaurantId={restaurantId} />
       </CardContent>
     </Card>
   );
 }
-

@@ -17,8 +17,15 @@ export default function DashboardTab() {
   const [totalGroupMessages, setTotalGroupMessages] = useState(0);
   const [totalQrCodeScans, setTotalQrCodeScans] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [restaurantId, setRestaurantId] = useState<string | null>(null);
 
-  const restaurantId = localStorage.getItem("restaurantId");
+  // Access localStorage only after the component has mounted
+  useEffect(() => {
+    const storedRestaurantId = localStorage.getItem("restaurantId");
+    if (storedRestaurantId) {
+      setRestaurantId(storedRestaurantId);
+    }
+  }, []);
 
   const fetchData = useCallback(async () => {
     if (!restaurantId) return;
@@ -45,65 +52,63 @@ export default function DashboardTab() {
 
   if (!restaurantId) {
     return (
-      <div>
-        <h1>Restaurant not found</h1>
+      <div className="text-center p-8">
+        <h1 className="text-2xl font-bold text-foreground">
+          Restaurant not found
+        </h1>
+        <p className="text-muted-foreground">
+          Please ensure you have selected a restaurant.
+        </p>
       </div>
     );
   }
 
   if (loading) {
     return (
-      <div>
-        <h1>Loading...</h1>
+      <div className="text-center p-8">
+        <h1 className="text-2xl font-bold text-foreground">Loading...</h1>
       </div>
     );
   }
 
-
-
   return (
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-      <Card className="bg-gradient-to-br from-purple-500 to-indigo-600 text-white">
+      <Card className="bg-gradient-to-br from-purple-500 to-indigo-600 text-white dark:from-purple-700 dark:to-indigo-800">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Total Customers</CardTitle>
-          <Users className="h-4 w-4 text-purple-200" />
+          <Users className="h-4 w-4 text-zinc-200" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">{totalCustomers}</div>
-          {/* <p className="text-xs text-purple-200">+20.1% from last month</p> */}
         </CardContent>
       </Card>
-      <Card className="bg-gradient-to-br from-pink-500 to-rose-600 text-white">
+      <Card className="bg-gradient-to-br from-pink-500 to-rose-600 text-white dark:from-pink-700 dark:to-rose-800">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Average Stay Time</CardTitle>
-          <Clock className="h-4 w-4 text-pink-200" />
+          <Clock className="h-4 w-4 text-zinc-200" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">{`${averageStayTime} min`}</div>
-          {/* <p className="text-xs text-pink-200">+5% from last month</p> */}
         </CardContent>
       </Card>
-      <Card className="bg-gradient-to-br from-cyan-500 to-blue-600 text-white">
+      <Card className="bg-gradient-to-br from-cyan-500 to-blue-600 text-white dark:from-cyan-700 dark:to-blue-800">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Chat Group Activity</CardTitle>
-          <MessageSquare className="h-4 w-4 text-cyan-200" />
+          <MessageSquare className="h-4 w-4 text-zinc-200" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">{totalGroupMessages} messages</div>
-          {/* <p className="text-xs text-cyan-200">+12% since yesterday</p> */}
         </CardContent>
       </Card>
-      <Card className="bg-gradient-to-br from-emerald-500 to-green-600 text-white">
+      <Card className="bg-gradient-to-br from-emerald-500 to-green-600 text-white dark:from-emerald-700 dark:to-green-800">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">QR Code Scans</CardTitle>
-          <QrCode className="h-4 w-4 text-emerald-200" />
+          <QrCode className="h-4 w-4 text-zinc-200" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">{totalQrCodeScans}</div>
-          {/* <p className="text-xs text-emerald-200">+201 from last week</p> */}
         </CardContent>
       </Card>
     </div>
   );
 }
-

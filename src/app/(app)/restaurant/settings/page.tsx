@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -33,11 +33,14 @@ import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { settingSchema } from "@/schemas/PubSettingSchema";
 import api from "@/lib/axios";
+import { toast } from "sonner";
 
 type SettingsFormValues = z.infer<typeof settingSchema>;
 
 export default function SettingsTab() {
   const [preview, setPreview] = useState<string | null>(null);
+  const [restaurantId, setRestaurantId] = useState<string | null>(null);
+
   const form = useForm<SettingsFormValues>({
     resolver: zodResolver(settingSchema),
     defaultValues: {
@@ -49,7 +52,14 @@ export default function SettingsTab() {
     },
   });
   const { control, handleSubmit, setValue, getValues, watch } = form;
-  const restaurantId = localStorage.getItem("restaurantId");
+
+  // Access localStorage only after the component has mounted
+  useEffect(() => {
+    const storedRestaurantId = localStorage.getItem("restaurantId");
+    if (storedRestaurantId) {
+      setRestaurantId(storedRestaurantId);
+    }
+  }, []);
 
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -88,31 +98,37 @@ export default function SettingsTab() {
     }
     if (data.offers) {
       formData.append("offers", JSON.stringify(data.offers));
-
     }
     if (data.logo) {
       formData.append("logo", data.logo);
     }
 
     try {
-      const response = await api.patch(`/restaurants/${restaurantId}/`, formData);
-      console.log("Restaurant details saved successfully:", response.data);
+      await api.patch(`/restaurants/${restaurantId}/`, formData);
+      toast("Restaurant details updated successfully");
+      form.reset();
+      setPreview(null); // Reset preview
     } catch (error) {
       console.error("Error saving restaurant details:", error);
     }
   };
 
-  if (!restaurantId) return (
-    <div>
-      <h1>Restaurant not found</h1>
-    </div>
-  );
-
+  if (!restaurantId)
+    return (
+      <div className="text-center p-8">
+        <h1 className="text-2xl font-bold text-foreground">
+          Restaurant not found
+        </h1>
+        <p className="text-muted-foreground">
+          Please ensure you have selected a restaurant.
+        </p>
+      </div>
+    );
   return (
-    <Card className="col-span-4 bg-white shadow-lg rounded-lg overflow-hidden">
-      <CardHeader className="bg-gradient-to-r from-pink-600 to-rose-600 text-white">
+    <Card className="col-span-4 bg-background shadow-lg rounded-lg overflow-hidden">
+      <CardHeader className="bg-gradient-to-r from-pink-600 to-rose-600 text-white dark:from-pink-700 dark:to-rose-700">
         <CardTitle>Restaurant Details</CardTitle>
-        <CardDescription className="text-pink-100">
+        <CardDescription className="text-pink-100 dark:text-pink-200">
           Update your restaurant information and offers
         </CardDescription>
       </CardHeader>
@@ -129,7 +145,11 @@ export default function SettingsTab() {
                 <FormItem>
                   <FormLabel>Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="Your restaurant name" {...field} />
+                    <Input
+                      placeholder="Your restaurant name"
+                      {...field}
+                      className="bg-background text-foreground"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -146,12 +166,14 @@ export default function SettingsTab() {
                     <Textarea
                       placeholder="Describe your restaurant"
                       {...field}
+                      className="bg-background text-foreground"
                     />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
             {/* Logo */}
             <FormField
               control={control}
@@ -160,7 +182,7 @@ export default function SettingsTab() {
                 <FormItem>
                   <FormLabel>Logo</FormLabel>
                   <div className="flex items-center space-x-4">
-                    <Avatar className="h-24 w-24 border-4 border-white shadow-md">
+                    <Avatar className="h-24 w-24 border-4 border-border shadow-md">
                       <AvatarImage src={preview || ""} alt="Restaurant logo" />
                       <AvatarFallback>LOGO</AvatarFallback>
                     </Avatar>
@@ -168,6 +190,7 @@ export default function SettingsTab() {
                       type="file"
                       accept="image/*"
                       onChange={handleLogoUpload}
+                      className="bg-background text-foreground"
                     />
                   </div>
                   <FormMessage />
@@ -186,7 +209,7 @@ export default function SettingsTab() {
                       onValueChange={field.onChange}
                       defaultValue={field.value}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="bg-background text-foreground">
                         <SelectValue placeholder="Select frequency" />
                       </SelectTrigger>
                       <SelectContent>
@@ -209,7 +232,7 @@ export default function SettingsTab() {
                 <FormItem>
                   <FormLabel>Offers</FormLabel>
                   {watch("offers").map((offer, index) => (
-                    <div key={index} className="flex items-center space-x-2">
+                    <div key={index} className="flex items-center  space-x-2">
                       <FormControl>
                         <Input
                           placeholder={`Offer ${index + 1}`}
@@ -219,6 +242,7 @@ export default function SettingsTab() {
                             offers[index].description = e.target.value;
                             setValue("offers", [...offers]);
                           }}
+                          className="bg-background text-foreground"
                         />
                       </FormControl>
                       <FormControl>
@@ -239,9 +263,12 @@ export default function SettingsTab() {
                             value={offer.time_duration_hours}
                             onChange={(e) => {
                               const offers = getValues("offers");
-                              offers[index].time_duration_hours = Number(e.target.value);
+                              offers[index].time_duration_hours = Number(
+                                e.target.value
+                              );
                               setValue("offers", [...offers]);
                             }}
+                            className="bg-background text-foreground"
                           />
                         </FormControl>
                       )}
@@ -260,7 +287,7 @@ export default function SettingsTab() {
                     type="button"
                     variant="outline"
                     onClick={addOffer}
-                    className="mt-2 text-pink-600 hover:text-pink-700 border-pink-300 hover:border-pink-400"
+                    className="m-2 text-pink-600 hover:text-pink-700 border-pink-300 hover:border-pink-400"
                   >
                     Add Offer
                   </Button>

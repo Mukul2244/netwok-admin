@@ -1,7 +1,7 @@
-"use client";
-import React, {createContext,useContext, useState,} from "react";
-// import fetchUser from "@/lib/fetchUser";
-// import getCookie from "@/lib/getCookie";
+"use client"
+
+import { createContext, useContext,  useState } from "react"
+
 
 const AuthContext = createContext<{
     _id: string;

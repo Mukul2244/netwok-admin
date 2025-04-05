@@ -1,75 +1,147 @@
-'use client'
-import React, { useState } from 'react'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import {
-  OverviewTab,
-  PubsTab,
-  UsersTab,
-  RevenueTab,
-  ActivityTab,
-  RegisterPubTab,
-} from '@/components/admin/index'
-import { Button } from '@/components/ui/button'
-import { useAuth } from '@/context/AuthContext'
-import { logout } from '@/lib/logout'
-export default function PubChatPlatformOwnerDashboard() {
-  const {
-    setId,
-    setEmail,
-    setUsername
-  } = useAuth()
-  const [activeTab, setActiveTab] = useState('overview')
-  const handleLogout = async () => {
-    // Clear the user data from from context 
-    setId('')
-    setEmail('')
-    setUsername('')
-
-    // Clear the user data from local storage
-    localStorage.removeItem('id')
-
-    // clear cookies
-    await logout()
+"use client";
+import React, { useEffect, useState } from 'react'
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
+import { Building, Users, DollarSign, MessageSquare } from 'lucide-react'
+import api from '@/lib/axios'
+interface PlatformOverview {
+  totalPubs: number
+  totalUsers: number
+  totalRevenue: number
+  activeChats: number
+}
+export default function OverviewTab() {
+  const [platformOverview, setPlatformOverview] = useState<PlatformOverview>({
+    totalPubs: 0,
+    totalUsers: 0,
+    totalRevenue: 0,
+    activeChats: 0,
+  })
+  const [revenueData, setRevenueData] = useState<{ month: string; revenue: number }[]>([
+    { month: 'Jan', revenue: 0 },
+    { month: 'Feb', revenue: 0 },
+    { month: 'Mar', revenue: 0 },
+    { month: 'Apr', revenue: 0 },
+    { month: 'May', revenue: 0 },
+    { month: 'Jun', revenue: 0 },
+  ])
+  const [userGrowthData, setUserGrowthData] = useState<{ month: string; users: number }[]>([
+    { month: 'Jan', users: 0 },
+    { month: 'Feb', users: 0 },
+    { month: 'Mar', users: 0 },
+    { month: 'Apr', users: 0 },
+    { month: 'May', users: 0 },
+    { month: 'Jun', users: 0 },
+  ])
+  // Fetch data from the API
+  const getData = async () => {
+    const response = await api.get('/superuser/')
+    const data = response.data
+    setPlatformOverview({
+      totalPubs: data.restaurants.total_count || 0,
+      totalUsers: data.customers.total_count || 0,
+      totalRevenue: data.restaurants.total_revenue || 0,
+      activeChats: data.private_chatrooms.total_count || 0
+    })
+    const revenueData = data.restaurants.monthly_counts
+    if (revenueData.length>0) {
+      setRevenueData(revenueData.map((item:{ month: string; total_revenue: number }) => ({
+        month: item.month,
+        revenue: item.total_revenue
+      })))
+    }
+    const usersData = data.customers.monthly_counts
+    if (usersData.length>0) {
+      setUserGrowthData(usersData.map((item:{ month: string; count: number }) => ({
+        month: item.month,
+        users: item.count
+      })))
+    }
   }
+  useEffect(() => {
+    getData()
+  }, [])
+
+
   return (
-    <div className='bg-gray-100 min-h-screen p-6'>
-      <div className="container mx-auto p-4 ">
-        <Button
-          className="mb-4 float-right"
-          variant="outline"
-          onClick={handleLogout}
-        >Logout</Button>
-        <h1 className="text-3xl font-bold mb-6">PubChat Platform Owner Dashboard</h1>
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-6 sm:grid-cols-3 sm:mb-10 gap-2">
-            <TabsTrigger value="overview" >Overview</TabsTrigger>
-            <TabsTrigger value="pubs">Pubs</TabsTrigger>
-            <TabsTrigger value="users">Users</TabsTrigger>
-            <TabsTrigger value="revenue">Revenue</TabsTrigger>
-            <TabsTrigger value="activity">Activity</TabsTrigger>
-            <TabsTrigger value="registerPub">Register Pub</TabsTrigger>
-          </TabsList>
-          <TabsContent value="overview">
-            <OverviewTab />
-          </TabsContent>
-          <TabsContent value="pubs">
-            <PubsTab />
-          </TabsContent>
-          <TabsContent value="users">
-            <UsersTab />
-          </TabsContent>
-          <TabsContent value="revenue">
-            <RevenueTab />
-          </TabsContent>
-          <TabsContent value="activity">
-            <ActivityTab />
-          </TabsContent>
-          <TabsContent value="registerPub">
-            <RegisterPubTab />
-          </TabsContent>
-        </Tabs>
+    <>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Pubs</CardTitle>
+            <Building className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{platformOverview.totalPubs}</div>
+            {/* <p className="text-xs text-muted-foreground">+3 from last month</p> */}
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Users</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{platformOverview.totalUsers}</div>
+            {/* <p className="text-xs text-muted-foreground">+12% from last month</p> */}
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+            <DollarSign className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">${platformOverview.totalRevenue}</div>
+            {/* <p className="text-xs text-muted-foreground">+18% from last month</p> */}
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Active Chats</CardTitle>
+            <MessageSquare className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{platformOverview.activeChats}</div>
+            {/* <p className="text-xs text-muted-foreground">+8% from last week</p> */}
+          </CardContent>
+        </Card>
       </div>
-    </div>
+      <div className="grid gap-4 md:grid-cols-2 mt-4">
+        <Card>
+          <CardHeader>
+            <CardTitle>Revenue Growth</CardTitle>
+          </CardHeader>
+          <CardContent className="h-[300px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={revenueData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="revenue" fill="#8884d8" />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>User Growth</CardTitle>
+          </CardHeader>
+          <CardContent className="h-[300px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={userGrowthData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" />
+                <YAxis />
+                <Tooltip />
+                <Line type="monotone" dataKey="users" stroke="#8884d8" />
+              </LineChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      </div>
+    </>
   )
 }
 

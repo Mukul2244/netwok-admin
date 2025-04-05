@@ -12,9 +12,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { logout } from "@/lib/logout";
-import { useUser } from "@/contexts/user-context";
+import { useUser } from "@/context/user-context";
 
-export function TopNav() {
+export function TopNav({ title }: { title: string }) {
   const { userDetails } = useUser();
 
   const handleLogout = async () => {
@@ -37,7 +37,7 @@ export function TopNav() {
               className="h-16 w-16 rounded-full"
             />
             <span className="text-2xl font-semibold text-foreground">
-              Restaurant Owner Dashboard
+              {title}
             </span>
           </div>
         </div>

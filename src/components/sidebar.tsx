@@ -3,31 +3,20 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  BarChart2,
-  MessageSquare,
-  QrCode,
-  Settings,
-  Users,
-  Home,
-  ChevronLeft,
-  Menu,
-} from "lucide-react";
+import { ChevronLeft, Menu, } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
 
-const navigation = [
-  { name: "Restaurants", href: "/restaurant", icon: Home, value: "restaurants" },
-  { name: "Dashboard", href: "/restaurant/dashboard", icon: BarChart2, value: "dashboard" },
-  { name: "Analytics", href: "/restaurant/analytics", icon: BarChart2, value: "analytics" },
-  { name: "Chat Group", href: "/restaurant/chat-group", icon: MessageSquare, value: "chat-group" },
-  { name: "Users", href: "/restaurant/users", icon: Users, value: "users" },
-  { name: "QR Code", href: "/restaurant/qr-code", icon: QrCode, value: "qr-code" },
-  { name: "Settings", href: "/restaurant/settings", icon: Settings, value: "settings" },
-];
+interface NavigationItem {
+  name: string;
+  href: string;
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+  value: string;
+}
 
-export function Sidebar() {
+
+export function Sidebar({ navigation }: { navigation: NavigationItem[] }) {
   const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
@@ -73,7 +62,7 @@ export function Sidebar() {
       <div
         className={cn(
           "fixed inset-y-0 z-20 flex flex-col bg-background transition-all duration-300 ease-in-out lg:static",
-          `${isCollapsed ? "w-[72px]" : "w-64"}`,
+          `${isCollapsed ? "w-[72px]" : "w-54"}`,
           isMobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         )}
       >

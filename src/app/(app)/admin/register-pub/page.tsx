@@ -62,9 +62,9 @@ export default function RegisterPubTab() {
   }
   return (
     <div className='flex justify-center'>
-      <Card className="w-full max-w-2xl bg-white shadow-xl rounded-xl overflow-hidden">
-        <CardHeader className="rounded-lg shadow m-4 ">
-          <CardTitle>Restaurant Details</CardTitle>
+      <Card className="w-full max-w-2xl bg-background text-foreground shadow-xl rounded-xl overflow-hidden">
+        <CardHeader className="rounded-lg  m-4 ">
+          <CardTitle className='text-foreground'>Restaurant Details</CardTitle>
           <CardDescription >Create a new restaurant</CardDescription>
         </CardHeader>
         <CardContent className="px-6">

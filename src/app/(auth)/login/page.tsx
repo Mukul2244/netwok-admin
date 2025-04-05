@@ -18,7 +18,7 @@ import { toast } from "sonner";
 import Link from "next/link";
 import axios from "axios";
 import api from "@/lib/axios";
-import { useUser } from "@/contexts/user-context";
+import { useUser } from "@/context/user-context";
 import { LoginSchema } from "@/schemas/LoginSchema";
 
 export default function Login() {

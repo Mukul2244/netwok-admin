@@ -1,6 +1,5 @@
 import './globals.css'
 import { Toaster } from '@/components/ui/sonner'
-import { AuthProvider } from "@/context/AuthContext"
 import { SocketProvider } from '@/context/SocketContext';
 import type { Metadata } from 'next'
 import { ThemeProvider } from "@/components/theme-provider"
@@ -28,11 +27,9 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <AuthProvider>
             <SocketProvider>
               {children}
             </SocketProvider>
-          </AuthProvider>
           <Toaster />
         </ThemeProvider>
       </body>

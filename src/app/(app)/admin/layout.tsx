@@ -5,17 +5,17 @@ import { TopNav } from "@/components/top-nav";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { UserProvider } from "@/context/user-context";
 import { Sidebar } from "@/components/sidebar";
-import {BarChart2,MessageSquare,QrCode,Settings,Users,Home, } from "lucide-react";
+import {Home, Users, Store, DollarSign, Activity, PlusCircle } from "lucide-react"
+
 
 const navigationItems = [
-  { name: "Restaurants", href: "/restaurant", icon: Home, value: "restaurants" },
-  { name: "Dashboard", href: "/restaurant/dashboard", icon: BarChart2, value: "dashboard" },
-  { name: "Analytics", href: "/restaurant/analytics", icon: BarChart2, value: "analytics" },
-  { name: "Chat Group", href: "/restaurant/chat-group", icon: MessageSquare, value: "chat-group" },
-  { name: "Users", href: "/restaurant/users", icon: Users, value: "users" },
-  { name: "QR Code", href: "/restaurant/qr-code", icon: QrCode, value: "qr-code" },
-  { name: "Settings", href: "/restaurant/settings", icon: Settings, value: "settings" },
-];
+    { name: "Overview", href: "/", icon: Home, value: "overview" },
+    { name: "Pubs", href: "/admin/pubs", icon: Store, value: "pubs" },
+    { name: "Users", href: "/admin/users", icon: Users, value: "users" },
+    { name: "Revenue", href: "/admin/revenue", icon: DollarSign, value: "revenue" },
+    { name: "Activity", href: "/admin/activity", icon: Activity, value: "activity" },
+    { name: "Register Pub", href: "/admin/register-pub", icon: PlusCircle, value: "register-pub" },
+  ];
 
 export default function AdminLayout({
   children,
@@ -28,7 +28,7 @@ export default function AdminLayout({
         <div className="min-h-screen flex">
           <Sidebar navigation={navigationItems} />
           <div className="flex-1">
-            <TopNav title = "Restaurant owner Dashboard" />
+            <TopNav title = "Admin Dashboard" />
             <div className="container mx-auto py-6 ">
               <main className="w-full">{children}</main>
             </div>

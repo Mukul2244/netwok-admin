@@ -20,6 +20,7 @@ import axios from "axios";
 import api from "@/lib/axios";
 import { useUser } from "@/context/user-context";
 import { LoginSchema } from "@/schemas/LoginSchema";
+import Image from "next/image";
 
 export default function Login() {
   const { setUserDetails } = useUser();
@@ -43,7 +44,6 @@ export default function Login() {
           username: response.data.user.username,
           email: response.data.user.email,
           id: response.data.user.id,
-          
         })
       );
       setUserDetails(response.data.user);
@@ -75,6 +75,10 @@ export default function Login() {
     <div className="flex items-center justify-center min-h-screen w-full bg-gradient-to-br from-purple-600 to-indigo-800 dark:from-indigo-900 dark:to-purple-900 p-4 sm:p-6">
       <div className="w-full max-w-md max-h-lg bg-background rounded-lg shadow-xl overflow-hidden p-6">
         <div className="space-y-4">
+          {/* Add the logo at the top */}
+          <div className="flex justify-center mb-6">
+            <Image src="/logo.svg" alt="Logo" width={100} height={100} />
+          </div>
           <h2 className="text-3xl font-bold text-center text-indigo-800 dark:text-indigo-200 mb-6">
             Login to the dashboard
           </h2>

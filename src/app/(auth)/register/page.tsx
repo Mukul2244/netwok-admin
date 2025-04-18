@@ -18,6 +18,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import api from "@/lib/axios";
 import { RegisterSchema } from "@/schemas/RegisterSchema";
+import Image from "next/image";
 
 export default function Register() {
   const [loading, setLoading] = useState(false);
@@ -49,8 +50,12 @@ export default function Register() {
     <div className="flex items-center justify-center min-h-screen w-full bg-gradient-to-br from-purple-600 to-indigo-800 dark:from-indigo-900 dark:to-purple-900 p-4">
       <div className="w-full max-w-md max-h-lg bg-background rounded-lg shadow-xl overflow-hidden p-6">
         <div className="space-y-4">
+          {/* Add the logo at the top */}
+          <div className="flex justify-center mb-6">
+            <Image src="/logo.svg" alt="Logo" width={100} height={100} />
+          </div>
           <h2 className="text-3xl font-bold text-center text-indigo-800 dark:text-indigo-200 mb-6">
-            Join the Pub Network
+            Join the Netwok
           </h2>
           <Form {...form}>
             <form
@@ -151,7 +156,10 @@ export default function Register() {
         <div>
           <p className="text-center text-muted-foreground text-sm mt-4">
             Already have an account?{" "}
-            <Link href="/login" className="text-indigo-600 dark:text-indigo-400">
+            <Link
+              href="/login"
+              className="text-indigo-600 dark:text-indigo-400"
+            >
               Login
             </Link>
           </p>

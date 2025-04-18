@@ -7,6 +7,8 @@ import { z } from "zod"
 })
 
 export const settingSchema = z.object({
+  requireOTP:z
+    .boolean(),
   restaurantName: z
     .string(),
   restaurantDescription: z

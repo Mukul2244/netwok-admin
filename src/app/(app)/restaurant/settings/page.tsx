@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -27,6 +27,7 @@ import {
   FormLabel,
   FormControl,
   FormMessage,
+  FormDescription,
 } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -38,12 +39,14 @@ import { toast } from "sonner";
 type SettingsFormValues = z.infer<typeof settingSchema>;
 
 export default function SettingsTab() {
+  const [loading, setLoading] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
   const [restaurantId, setRestaurantId] = useState<string | null>(null);
 
   const form = useForm<SettingsFormValues>({
     resolver: zodResolver(settingSchema),
     defaultValues: {
+      requireOTP: false,
       restaurantName: "",
       restaurantDescription: "",
       qrCodeGenerationFrequency: "",
@@ -52,7 +55,6 @@ export default function SettingsTab() {
     },
   });
   const { control, handleSubmit, setValue, getValues, watch } = form;
-
   // Access localStorage only after the component has mounted
   useEffect(() => {
     const storedRestaurantId = localStorage.getItem("restaurantId");
@@ -60,6 +62,20 @@ export default function SettingsTab() {
       setRestaurantId(storedRestaurantId);
     }
   }, []);
+
+  const getData = useCallback(async () => {
+    try {
+    if(restaurantId){
+      const response = await api.get(`/restaurants/${restaurantId}/`);
+      setValue("requireOTP", response.data.require_otp);
+    }
+    } catch (error) {
+      console.error("Error fetching restaurant details:", error);
+    }
+  },[restaurantId,setValue]);
+  useEffect(() => {
+    getData();
+  }, [restaurantId,getData]);
 
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -102,16 +118,23 @@ export default function SettingsTab() {
     if (data.logo) {
       formData.append("logo", data.logo);
     }
-
+    formData.append("require_otp", data.requireOTP.toString());
+     
+    setLoading(true);
     try {
       await api.patch(`/restaurants/${restaurantId}/`, formData);
       toast("Restaurant details updated successfully");
       form.reset();
+      setValue("requireOTP", data.requireOTP);
       setPreview(null); // Reset preview
     } catch (error) {
-      console.error("Error saving restaurant details:", error);
+      console.log("Error saving restaurant details:", error);
+      toast("Failed to save restaurant details. Please try again.");
+    }finally {
+      setLoading(false);
     }
   };
+
 
   if (!restaurantId)
     return (
@@ -173,8 +196,6 @@ export default function SettingsTab() {
                 </FormItem>
               )}
             />
-
-            {/* Logo */}
             <FormField
               control={control}
               name="logo"
@@ -197,7 +218,6 @@ export default function SettingsTab() {
                 </FormItem>
               )}
             />
-
             <FormField
               control={control}
               name="qrCodeGenerationFrequency"
@@ -221,6 +241,28 @@ export default function SettingsTab() {
                     </Select>
                   </FormControl>
                   <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="requireOTP"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                  <div className="space-y-0.5">
+                    <FormLabel>Require OTP</FormLabel>
+                    <FormDescription>
+                      Enable this to require OTP for Customer login and register.
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={(checked) => {
+                        field.onChange(checked);
+                      }                      }
+                    />
+                  </FormControl>
                 </FormItem>
               )}
             />
@@ -295,12 +337,14 @@ export default function SettingsTab() {
                 </FormItem>
               )}
             />
+
             <div className="flex justify-end">
               <Button
                 type="submit"
+                disabled={loading}
                 className="bg-gradient-to-r from-pink-500 to-rose-500 text-white hover:from-pink-600 hover:to-rose-600"
               >
-                Save Changes
+                 {loading ? "Saving..." : "Save Changes"}
               </Button>
             </div>
           </form>

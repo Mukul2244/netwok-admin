@@ -36,6 +36,7 @@ export default function QrCodeTab() {
       try {
         if (!restaurantId) return;
         const response = await api.get(`/restaurants/${restaurantId}/`);
+        // console.log(response.data);
         setRestaurantName(response.data.name);
         setLogo(response.data.logo);
         setQrCodeNumber(response.data.var_id);
@@ -86,10 +87,10 @@ export default function QrCodeTab() {
       </CardHeader>
       <CardContent className="flex flex-col items-center p-8 bg-gradient-to-br from-emerald-50 to-green-100 dark:from-zinc-900 dark:to-zinc-800">
         <div className="flex justify-center flex-col items-center">
-          <div className="flex items-center justify-center w-64 h-64 bg-background rounded-lg shadow-lg mb-6">
+          <div className="flex items-center justify-center w-auto h-auto p-4 bg-zinc-50 rounded-lg shadow-lg mb-6">
             <QRCodeSVG
               value={`https://users.netwok.app/register?restaurantId=${restaurantId}&qrCodeNumber=${qrCodeNumber}`}
-              className="w-48 h-48 text-zinc-500 dark:text-zinc-300"
+              className="w-48 h-48 text-zinc-50"
             />
           </div>
           <div className="text-5xl font-bold mb-4 text-zinc-700 dark:text-zinc-300">

@@ -36,7 +36,7 @@ export function TopNav({ title }: { title: string }) {
               alt="Logo"
               className="h-16 w-16 rounded-full"
             />
-            <span className="text-2xl font-semibold text-foreground">
+            <span className="text-2xl text-neutral-800 dark:text-neutral-100 font-semibold text-foreground">
               {title}
             </span>
           </div>

@@ -1,9 +1,11 @@
 "use client";
+
 import React, { useEffect, useState } from "react";
 import api from "@/lib/axios";
 import { Button } from "@/components/ui/button";
+import { Building2, CheckCircle2 } from "lucide-react";
 
-// Utility function to safely parse JSON from localStorage
+// Utility function
 const safeParseJSON = (key: string) => {
   try {
     const value = localStorage.getItem(key);
@@ -15,20 +17,16 @@ const safeParseJSON = (key: string) => {
 };
 
 export default function RestaurantsTab() {
-  const [restaurants, setRestaurants] = useState<{
-    id: number;
-    name: string;
-    var_id: string;
-  }[]>([]);
+  const [restaurants, setRestaurants] = useState<
+    { id: number; name: string; var_id: string }[]
+  >([]);
   const [selectedRestaurantId, setSelectedRestaurantId] = useState<string | null>(null);
 
-  // Fetch restaurants for the logged-in user
   const fetchRestaurants = async (userId: string) => {
     try {
       const response = await api.get(`/restaurants/?owner=${userId}`);
       setRestaurants(response.data);
 
-      // Check if a restaurant is already selected
       const restaurantId = localStorage.getItem("restaurantId");
       const qrCodeNumber = localStorage.getItem("qrCodeNumber");
 
@@ -41,12 +39,9 @@ export default function RestaurantsTab() {
   };
 
   useEffect(() => {
-    // Ensure localStorage access only happens on the client side
     const user = safeParseJSON("user");
     if (user && user.id) {
       fetchRestaurants(user.id.toString());
-    } else {
-      console.log("User details not found in localStorage.");
     }
   }, []);
 
@@ -56,36 +51,56 @@ export default function RestaurantsTab() {
       setSelectedRestaurantId(restaurantId.toString());
       localStorage.setItem("qrCodeNumber", qrCodeNumber.toString());
     } catch (error) {
-      console.error("Error saving restaurant selection to localStorage:", error);
+      console.error("Error saving restaurant selection:", error);
     }
   };
 
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4 text-foreground">List of Restaurants</h1>
+    <div className="p-6">
+      <h1 className="text-3xl font-bold mb-6 text-foreground">🍽️ Your Restaurants</h1>
+
       {restaurants.length > 0 ? (
-        <div>
-          {restaurants.map((restaurant) => (
-            <div
-              key={restaurant.id}
-              className={`bg-background text-foreground shadow-md p-4 mb-4 rounded-md transition-all ${
-                selectedRestaurantId === restaurant.id.toString()
-                  ? "border-2 border-blue-500 dark:border-blue-400"
-                  : "border border-border"
-              }`}
-            >
-              <h2 className="text-lg font-bold">{restaurant.name}</h2>
-              <Button
-                className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 dark:bg-blue-400 dark:hover:bg-blue-500"
-                onClick={() => handleSelectRestaurant(restaurant.id, restaurant.var_id)}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {restaurants.map((restaurant) => {
+            const isSelected = selectedRestaurantId === restaurant.id.toString();
+            return (
+              <div
+                key={restaurant.id}
+                className={`relative p-5 rounded-xl border transition-all duration-300 shadow-sm ${
+                  isSelected
+                    ? "border-blue-500 bg-blue-50 dark:bg-blue-950 dark:border-blue-400"
+                    : "border-border hover:shadow-md bg-card dark:bg-zinc-800"
+                }`}
               >
-                Select Restaurant
-              </Button>
-            </div>
-          ))}
+                <div className="flex items-center gap-3">
+                  <Building2 className="text-primary dark:text-blue-400" />
+                  <h2 className="text-xl font-semibold text-foreground dark:text-zinc-100">
+                    {restaurant.name}
+                  </h2>
+                  {isSelected && (
+                    <CheckCircle2 className="text-green-500 dark:text-green-400 ml-auto" />
+                  )}
+                </div>
+
+                <Button
+                  variant="default"
+                  className={`w-full mt-4 ${
+                    isSelected
+                      ? "bg-blue-500 text-white hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700"
+                      : "bg-muted text-foreground hover:bg-muted/80 dark:bg-zinc-700 dark:hover:bg-zinc-600"
+                  }`}
+                  onClick={() => handleSelectRestaurant(restaurant.id, restaurant.var_id)}
+                >
+                  {isSelected ? "Selected" : "Select Restaurant"}
+                </Button>
+              </div>
+            );
+          })}
         </div>
       ) : (
-        <div className="text-muted-foreground">No restaurant found. Please contact the admin.</div>
+        <div className="text-muted-foreground text-lg text-center mt-10 dark:text-zinc-400">
+          No restaurants found. Please contact admin.
+        </div>
       )}
     </div>
   );

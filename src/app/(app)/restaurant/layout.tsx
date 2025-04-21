@@ -1,5 +1,4 @@
 "use client";
-
 import type React from "react";
 import { TopNav } from "@/components/top-nav";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -17,7 +16,7 @@ const navigationItems = [
   { name: "Settings", href: "/restaurant/settings", icon: Settings, value: "settings" },
 ];
 
-export default function AdminLayout({
+export default function RestaurantLayout({
   children,
 }: {
   children: React.ReactNode;

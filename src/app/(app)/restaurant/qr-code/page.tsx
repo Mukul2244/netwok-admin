@@ -54,6 +54,7 @@ export default function QrCodeTab() {
         restaurant_id: restaurantId,
       });
       setQrCodeNumber(response.data.restaurant.var_id);
+      localStorage.setItem("qrCodeNumber", response.data.restaurant.var_id);
       setExpiryTime(response.data.restaurant.var_id_expiry_time);
       toast("QR code changed successfully");
     } catch (error) {

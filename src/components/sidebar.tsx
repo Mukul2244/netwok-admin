@@ -61,8 +61,8 @@ export function Sidebar({ navigation }: { navigation: NavigationItem[] }) {
       {/* Sidebar */}
       <div
         className={cn(
-          "fixed inset-y-0 z-20 flex flex-col bg-background transition-all duration-300 ease-in-out lg:static",
-          `${isCollapsed ? "w-[72px]" : "w-54"}`,
+          "fixed inset-y-0 z-20 flex flex-col bg-background transition-all duration-300 ease-in-out  ",
+          `${isCollapsed ? "min-w-[72px]" : "min-w-54"}`,
           isMobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         )}
       >

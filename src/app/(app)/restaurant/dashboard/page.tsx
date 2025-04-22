@@ -3,6 +3,7 @@ import { useEffect, useState, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Clock, MessageSquare, QrCode, Users } from "lucide-react";
 import api from "@/lib/axios";
+import AnalyticsTab from "../analytics/page";
 
 interface RestaurantData {
   total_customers: number;
@@ -72,6 +73,7 @@ export default function DashboardTab() {
   }
 
   return (
+    <>
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
       <Card className="bg-gradient-to-br from-purple-500 to-indigo-600 text-white dark:from-purple-700 dark:to-indigo-800">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -110,5 +112,9 @@ export default function DashboardTab() {
         </CardContent>
       </Card>
     </div>
+    <div className="mt-8">
+      <AnalyticsTab/>
+    </div>
+    </>
   );
 }

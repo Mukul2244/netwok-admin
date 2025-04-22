@@ -36,7 +36,6 @@ export default function QrCodeTab() {
       try {
         if (!restaurantId) return;
         const response = await api.get(`/restaurants/${restaurantId}/`);
-        // console.log(response.data);
         setRestaurantName(response.data.name);
         setLogo(response.data.logo);
         setQrCodeNumber(response.data.var_id);
@@ -97,7 +96,8 @@ export default function QrCodeTab() {
             {qrCodeNumber}
           </div>
           <div className="text-2xl mb-6 text-zinc-600 dark:text-zinc-400">
-            Time until reset: <Timer key={expiryTime} expiryDate={expiryTime} />
+            Time until reset:{" "}
+            <Timer key={expiryTime} expiryDate={expiryTime} onExpire={generateQRCode} />
           </div>
           <div className="flex items-center space-x-6 bg-background p-4 rounded-lg shadow-md">
             <Avatar className="h-20 w-20 border-4 border-zinc-200 dark:border-zinc-700">

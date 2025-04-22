@@ -25,7 +25,7 @@ export function TopNav({ title }: { title: string }) {
   };
 
   return (
-    <header className="sticky top-0 z-40 border-b bg-background  ">
+    <header className="sticky top-0  border-b bg-background  ">
       <div className="mx-auto container flex h-16 items-center justify-end md:justify-between px-4 md:px-6">
         <div className="hidden md:block">
           <div className="flex items-center space-x-2 gap-4">

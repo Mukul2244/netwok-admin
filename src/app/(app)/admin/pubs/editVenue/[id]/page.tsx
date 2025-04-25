@@ -1,33 +1,4 @@
 
-        
-        // // Mock data for development
-        // const venueData = {
-        //   id: params.id,
-        //   name: "The Golden Pub",
-        //   type: "Pub",
-        //   address: "123 Main St",
-        //   city: "London",
-        //   state: "Greater London",
-        //   postalCode: "EC1V 1NE",
-        //   country: "UK",
-        //   description: "A traditional British pub with a modern twist.",
-        //   subscription: "Professional",
-        //   status: "Active",
-        //   contactName: "John Smith",
-        //   contactPosition: "Manager",
-        //   contactEmail: "john@goldenpub.com",
-        //   contactPhone: "+44 123 456 7890",
-        //   website: "https://goldenpub.com",
-        //   updatedAt: new Date().toISOString(),
-        // };
-        
-
-
-
-
-
-
-
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -63,7 +34,13 @@ interface Venue {
   updatedAt?: string;
 }
 
-export default function EditVenuePage({ params }: { params: { id: string } }) {
+interface PageProps {
+  params: {
+    id: string;
+  };
+}
+
+export default function EditVenuePage({ params }: PageProps) {
 //   const {id}=useParams()
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);

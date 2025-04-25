@@ -1,128 +1,139 @@
 
 
 "use client";
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
-  BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, 
-  Tooltip, ResponsiveContainer, AreaChart, Area, PieChart, Pie, Cell 
+ LineChart, Line, XAxis, YAxis, CartesianGrid, 
+  Tooltip, ResponsiveContainer, AreaChart, Area 
 } from 'recharts';
 import { 
   Building, Users, DollarSign, MessageSquare, 
   ArrowUp, ArrowDown, Download, Clock
 } from 'lucide-react';
-import api from '@/lib/axios';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Avatar } from "@/components/ui/avatar";
 
-interface PlatformOverview {
-  totalVenues: number;
-  activeUsers: number;
-  monthlyRevenue: number;
-  activeSubscriptions: number;
-  userGrowthRate: number;
-  revenueGrowthRate: number;
-  venueGrowthRate: number;
-  subscriptionGrowthRate: number;
+
+// interface PlatformOverview {
+//   totalVenues: number;
+//   activeUsers: number;
+//   monthlyRevenue: number;
+//   activeSubscriptions: number;
+//   userGrowthRate: number;
+//   revenueGrowthRate: number;
+//   venueGrowthRate: number;
+//   subscriptionGrowthRate: number;
+// }
+
+// interface SignupEntry {
+//   id: string;
+//   name: string;
+//   location: string;
+//   timeAgo: string;
+//   initials: string;
+// }
+
+// interface CouponEntry {
+//   code: string;
+//   discount: string;
+//   usageCount: number;
+//   type: string;
+// }
+
+// interface ActivityEntry {
+//   event: string;
+//   timeAgo: string;
+// }
+
+// interface SubscriptionPlan {
+//   name: string;
+//   count: number;
+//   percentage: number;
+//   color: string;
+// }
+
+
+const platformOverview={
+  totalVenues: 142,
+  activeUsers: 2850,
+  monthlyRevenue: 12234,
+  activeSubscriptions: 136,
+  userGrowthRate: 8.4,
+  revenueGrowthRate: 4.2,
+  venueGrowthRate: 12,
+  subscriptionGrowthRate: 5.8
 }
 
-interface SignupEntry {
-  id: string;
-  name: string;
-  location: string;
-  timeAgo: string;
-  initials: string;
-}
 
-interface CouponEntry {
-  code: string;
-  discount: string;
-  usageCount: number;
-  type: string;
-}
+const recentSignups=[
+  { id: "CP", name: "Central Perk", location: "New York", timeAgo: "2 hours ago", initials: "CP" },
+  { id: "TG", name: "The Golden Pub", location: "London", timeAgo: "5 hours ago", initials: "TG" },
+  { id: "BH", name: "Blue Horizon", location: "Miami", timeAgo: "1 day ago", initials: "BH" },
+  { id: "SC", name: "Sunset Cafe", location: "Los Angeles", timeAgo: "2 days ago", initials: "SC" },
+  { id: "RL", name: "Red Lion", location: "Chicago", timeAgo: "3 days ago", initials: "RL" }
+]
 
-interface ActivityEntry {
-  event: string;
-  timeAgo: string;
-}
+const recentCoupons=[ { code: "SUMMER23", discount: "20% off", usageCount: 12, type: "seasonal" },
+  { code: "NEWVENUE", discount: "Free month", usageCount: 8, type: "onboarding" },
+  { code: "UPGRADE50", discount: "50% off upgrade", usageCount: 5, type: "upgrade" },
+  { code: "REFER10", discount: "10% off", usageCount: 3, type: "referral" }]
 
-interface SubscriptionPlan {
-  name: string;
-  count: number;
-  percentage: number;
-  color: string;
-}
+
+const recentActivity=[ { event: "New venue registered: The Golden Pub", timeAgo: "10 min ago" },
+  { event: "Payment received: $79.00 from Blue Horizon", timeAgo: "1 hour ago" },
+  { event: "Subscription upgraded: Sunset Cafe to Professional", timeAgo: "3 hours ago" },
+  { event: "New coupon created: SUMMER23", timeAgo: "5 hours ago" },
+  { event: "User reported issue with QR code scanning", timeAgo: "1 day ago" }]
+
+const subscriptionPlans=[ { name: "Starter", count: 42, percentage: 31, color: "#8b5cf6" },
+  { name: "Professional", count: 78, percentage: 57, color: "#ec4899" },
+  { name: "Enterprise", count: 16, percentage: 12, color: "#3b82f6" }]
+
+
+const revenueData=[{ month: 'Jan', revenue: 6500 },
+  { month: 'Feb', revenue: 7200 },
+  { month: 'Mar', revenue: 8300 },
+  { month: 'Apr', revenue: 9100 },
+  { month: 'May', revenue: 10800 },
+  { month: 'Jun', revenue: 12234 }]
+
+const userGrowthData=[ { month: 'Jan', users: 1450 },
+  { month: 'Feb', users: 1680 },
+  { month: 'Mar', users: 1950 },
+  { month: 'Apr', users: 2250 },
+  { month: 'May', users: 2630 },
+  { month: 'Jun', users: 2850 }]
+
+
+
 
 export default function OverviewTab() {
-  const [platformOverview, setPlatformOverview] = useState<PlatformOverview>({
-    totalVenues: 142,
-    activeUsers: 2850,
-    monthlyRevenue: 12234,
-    activeSubscriptions: 136,
-    userGrowthRate: 8.4,
-    revenueGrowthRate: 4.2,
-    venueGrowthRate: 12,
-    subscriptionGrowthRate: 5.8
-  });
+  // const [platformOverview, setPlatformOverview] = useState<PlatformOverview>();
   
-  const [revenueData, setRevenueData] = useState<{ month: string; revenue: number }[]>([
-    { month: 'Jan', revenue: 6500 },
-    { month: 'Feb', revenue: 7200 },
-    { month: 'Mar', revenue: 8300 },
-    { month: 'Apr', revenue: 9100 },
-    { month: 'May', revenue: 10800 },
-    { month: 'Jun', revenue: 12234 }
-  ]);
+  // const [revenueData, setRevenueData] = useState<{ month: string; revenue: number }[]>([]);
   
-  const [userGrowthData, setUserGrowthData] = useState<{ month: string; users: number }[]>([
-    { month: 'Jan', users: 1450 },
-    { month: 'Feb', users: 1680 },
-    { month: 'Mar', users: 1950 },
-    { month: 'Apr', users: 2250 },
-    { month: 'May', users: 2630 },
-    { month: 'Jun', users: 2850 }
-  ]);
+  // const [userGrowthData, setUserGrowthData] = useState<{ month: string; users: number }[]>([]);
+
+  
 
   // Recent signups data
-  const [recentSignups, setRecentSignups] = useState<SignupEntry[]>([
-    { id: "CP", name: "Central Perk", location: "New York", timeAgo: "2 hours ago", initials: "CP" },
-    { id: "TG", name: "The Golden Pub", location: "London", timeAgo: "5 hours ago", initials: "TG" },
-    { id: "BH", name: "Blue Horizon", location: "Miami", timeAgo: "1 day ago", initials: "BH" },
-    { id: "SC", name: "Sunset Cafe", location: "Los Angeles", timeAgo: "2 days ago", initials: "SC" },
-    { id: "RL", name: "Red Lion", location: "Chicago", timeAgo: "3 days ago", initials: "RL" }
-  ]);
+  // const [recentSignups, setRecentSignups] = useState<SignupEntry[]>([]);
 
   // Recent coupons data
-  const [recentCoupons, setRecentCoupons] = useState<CouponEntry[]>([
-    { code: "SUMMER23", discount: "20% off", usageCount: 12, type: "seasonal" },
-    { code: "NEWVENUE", discount: "Free month", usageCount: 8, type: "onboarding" },
-    { code: "UPGRADE50", discount: "50% off upgrade", usageCount: 5, type: "upgrade" },
-    { code: "REFER10", discount: "10% off", usageCount: 3, type: "referral" }
-  ]);
+  // const [recentCoupons, setRecentCoupons] = useState<CouponEntry[]>([]);
 
   // Recent activity data
-  const [recentActivity, setRecentActivity] = useState<ActivityEntry[]>([
-    { event: "New venue registered: The Golden Pub", timeAgo: "10 min ago" },
-    { event: "Payment received: $79.00 from Blue Horizon", timeAgo: "1 hour ago" },
-    { event: "Subscription upgraded: Sunset Cafe to Professional", timeAgo: "3 hours ago" },
-    { event: "New coupon created: SUMMER23", timeAgo: "5 hours ago" },
-    { event: "User reported issue with QR code scanning", timeAgo: "1 day ago" }
-  ]);
+  // const [recentActivity, setRecentActivity] = useState<ActivityEntry[]>([]);
 
   // Subscription distribution data
-  const [subscriptionPlans, setSubscriptionPlans] = useState<SubscriptionPlan[]>([
-    { name: "Starter", count: 42, percentage: 31, color: "#8b5cf6" },
-    { name: "Professional", count: 78, percentage: 57, color: "#ec4899" },
-    { name: "Enterprise", count: 16, percentage: 12, color: "#3b82f6" }
-  ]);
+  // const [subscriptionPlans, setSubscriptionPlans] = useState<SubscriptionPlan[]>([]);
   
   // Fetch data from the API
   const getData = async () => {
     try {
-      const response = await api.get('/superuser/');
-      const data = response.data;
+      // const response = await api.get('/superuser/');
+      // const data = response.data;
       
       // Once API is ready, we'll update the state here
       // For now, we're using mock data

@@ -31,7 +31,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter,useParams} from "next/navigation";
+import { useRouter} from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -41,7 +41,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
 import { ArrowLeft, Save, Loader2 } from "lucide-react";
-import api from "@/lib/axios";
+
 
 interface Venue {
 //   id: string;
@@ -64,7 +64,7 @@ interface Venue {
 }
 
 export default function EditVenuePage({ params }: { params: { id: string } }) {
-  const {id}=useParams()
+//   const {id}=useParams()
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingVenue, setIsLoadingVenue] = useState(true);
@@ -229,7 +229,7 @@ export default function EditVenuePage({ params }: { params: { id: string } }) {
           <CardHeader>
             <CardTitle>Venue Not Found</CardTitle>
             <CardDescription>
-              The venue you're looking for doesn't exist or you may not have permission to view it.
+              The venue you&apos;re looking for doesn&apos;t exist or you may not have permission to view it.
             </CardDescription>
           </CardHeader>
           <CardContent>

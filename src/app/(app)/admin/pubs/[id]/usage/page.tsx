@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { useParams, useRouter } from "next/navigation"
+import { useParams} from "next/navigation"
 import {
   ArrowLeft,
   Clock,
@@ -14,10 +14,61 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
+interface VisitorByDay {
+  [key: string]: string | number;  // Add index signature
+  day: string;
+  count: number;
+}
+
+interface VisitorByHour {
+  [key: string]: string | number;  // Add index signature
+  hour: string;
+  count: number;
+}
+
+interface ScanHistory {
+  [key: string]: string | number;  // Add index signature
+  date: string;
+  count: number;
+}
+
+
+
+
+interface PopularInterest {
+  interest: string;
+  percentage: number;
+}
+
+interface RecentScan {
+  id: number;
+  user: string;
+  time: string;
+  interests: string[];
+}
+
+interface Venue {
+  id: number;
+  name: string;
+  type: string;
+  subscription: string;
+  status: string;
+  lastQrScanned: string;
+  totalScans: number;
+  activeVisitors: number;
+  totalVisitors: number;
+  averageStay: string;
+  visitorsByDay: VisitorByDay[];
+  visitorsByHour: VisitorByHour[];
+  scanHistory: ScanHistory[];
+  popularInterests: PopularInterest[];
+  recentScans: RecentScan[];
+}
+
 export default function VenueUsagePage() {
   const params = useParams()
-  const router = useRouter()
-  const [venue, setVenue] = useState<any>(null)
+ 
+  const [venue, setVenue] = useState<Venue | null>(null);
   const [loading, setLoading] = useState(true)
   const [timeRange, setTimeRange] = useState("week")
 
@@ -180,10 +231,24 @@ export default function VenueUsagePage() {
   const recentScans = venue.recentScans || getPlaceholderData('recentScans');
 
   // Function to get max value for chart scaling
-  const getMaxValue = (data: { [key: string]: any }[], key: string): number => {
+  // const getMaxValue = (data: { [key: string]: any }[], key: string): number => {
+  //   if (!data || data[0][key] === '--') return 100;
+  //   return Math.max(...data.map((d: { [key: string]: any }) => d[key]));
+  // };
+
+
+
+  const getMaxValue = (data: { [key: string]: number | string }[], key: string): number => {
     if (!data || data[0][key] === '--') return 100;
-    return Math.max(...data.map((d: { [key: string]: any }) => d[key]));
+  
+    // Ensure the value is a number before trying to get the maximum
+    return Math.max(...data.map((d) => {
+      const value = d[key];
+      // Only consider numeric values (ignore if value is a string like '--')
+      return typeof value === 'number' ? value : -Infinity;
+    }));
   };
+  
   
 
   return (

@@ -4,7 +4,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { useParams, useRouter } from "next/navigation"
+import { useParams} from "next/navigation"
 import {
   ArrowLeft,
   Calendar,
@@ -25,6 +25,44 @@ import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 
 import { Toaster } from "@/components/ui/toaster"
+
+
+interface SocialMedia {
+  facebook: string;
+  instagram: string;
+  twitter: string;
+}
+
+interface Venue {
+  id: number;
+  name: string;
+  type: string;
+  address: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  country: string;
+  description: string;
+  subscription: string;
+  subscriptionStartDate: string;
+  lastPayment: string;
+  nextPaymentDue: string;
+  status: string;
+  lastQrScanned: string;
+  totalScans: number;
+  activeVisitors: number;
+  totalVisitors: number;
+  averageStay: string;
+  popularTimes: string[];
+  contactName: string;
+  contactPosition: string;
+  contactEmail: string;
+  contactPhone: string;
+  website: string;
+  socialMedia: SocialMedia;
+  createdAt: string;
+  updatedAt: string;
+}
 
 // Mock venue data - in a real app, you would fetch this from an API
 const getVenueById = (id: string) => {
@@ -105,40 +143,26 @@ const getVenueById = (id: string) => {
 }
 
 
-interface Venue {
-  name: string
-  type: string
-  address: string
-  city: string
-  state: string
-  postalCode: string
-  country: string
-  description: string
-  subscription: string
-  status: string
-  contactName: string
-  contactPosition: string
-  contactEmail: string
-  contactPhone: string
-  website: string
-  updatedAt?: string
-}
 
 export default function VenueDetailsPage() {
-  const params = useParams()
+  const { id } = useParams();
 
-  const [venue, setVenue] = useState<any>(null)
+  const [venue, setVenue] = useState<Venue | null>(null);
+
   const [loading, setLoading] = useState(true)
 
 
   useEffect(() => {
-    if (params.id) {
+    if (id) {
       // In a real app, you would fetch the venue data from an API
-      const venueData = getVenueById(params.id as string)
+      const venueData = getVenueById(id as string)
+      if(!venueData){
+        return;
+      }
       setVenue(venueData)
       setLoading(false)
     }
-  }, [params.id])
+  }, [id])
 
 
 
@@ -357,7 +381,7 @@ export default function VenueDetailsPage() {
                           </div>
                         )}
                         {venue.socialMedia &&
-                          Object.entries(venue.socialMedia).map(([platform, handle]: [string, any]) => (
+                          Object.entries(venue.socialMedia).map(([platform, handle]: [string, string]) => (
                             <div key={platform} className="flex items-center gap-2">
                               <span className="text-muted-foreground capitalize">{platform}:</span>
                               <span>@{handle}</span>

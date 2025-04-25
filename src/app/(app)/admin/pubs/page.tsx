@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { toast } from "@/hooks/use-toast";
+
 import {
   Search,
   Filter,
@@ -41,93 +41,95 @@ import {
   DropdownMenuRadioItem,
  
 } from "@/components/ui/dropdown-menu";
-import api from "@/lib/axios";
 
-interface Venue {
-  id: string;
-  name: string;
-  address: string;
-  subscription: "Starter" | "Professional" | "Enterprise";
-  lastPayment: string;
-  lastScanned: string;
-  status: "Active" | "Inactive";
-}
+
+// interface Venue {
+//   id: string;
+//   name: string;
+//   address: string;
+//   subscription: "Starter" | "Professional" | "Enterprise";
+//   lastPayment: string;
+//   lastScanned: string;
+//   status: "Active" | "Inactive";
+// }
+
+const venues=[
+  {
+    id: "1",
+    name: "The Golden Pub",
+    address: "123 Main St, London, UK",
+    subscription: "Professional",
+    lastPayment: "15/06/2023",
+    lastScanned: "18/06/2023, 20:02:00",
+    status: "Active",
+  },
+  {
+    id: "2",
+    name: "Blue Horizon",
+    address: "456 Ocean Dr, Miami, FL",
+    subscription: "Enterprise",
+    lastPayment: "10/06/2023",
+    lastScanned: "18/06/2023, 01:15:00",
+    status: "Active",
+  },
+  {
+    id: "3",
+    name: "Sunset Cafe",
+    address: "789 Sunset Blvd, Los Angeles, CA",
+    subscription: "Professional",
+    lastPayment: "05/06/2023",
+    lastScanned: "18/06/2023, 17:45:00",
+    status: "Active",
+  },
+  {
+    id: "4",
+    name: "Central Perk",
+    address: "90 Bedford St, New York, NY",
+    subscription: "Starter",
+    lastPayment: "01/06/2023",
+    lastScanned: "16/06/2023, 14:52:00",
+    status: "Active",
+  },
+  {
+    id: "5",
+    name: "Red Lion",
+    address: "567 State St, Chicago, IL",
+    subscription: "Starter",
+    lastPayment: "28/05/2023",
+    lastScanned: "30/05/2023, 22:18:00",
+    status: "Inactive",
+  },
+  {
+    id: "6",
+    name: "The Prancing Pony",
+    address: "1 Bree Rd, Middle Earth",
+    subscription: "Professional",
+    lastPayment: "25/05/2023",
+    lastScanned: "18/06/2023, 13:40:00",
+    status: "Active",
+  },
+  {
+    id: "7",
+    name: "Moe's Tavern",
+    address: "123 Springfield Ave, Springfield",
+    subscription: "Starter",
+    lastPayment: "20/05/2023",
+    lastScanned: "23/05/2023, 02:03:00",
+    status: "Inactive",
+  },
+  {
+    id: "8",
+    name: "The Three Broomsticks",
+    address: "Hogsmeade Village, Scotland",
+    subscription: "Enterprise",
+    lastPayment: "15/05/2023",
+    lastScanned: "17/06/2023, 20:57:00",
+    status: "Active",
+  },
+]
 
 export default function PubsTab() {
-  const [venues, setVenues] = useState<Venue[]>([
-    {
-      id: "1",
-      name: "The Golden Pub",
-      address: "123 Main St, London, UK",
-      subscription: "Professional",
-      lastPayment: "15/06/2023",
-      lastScanned: "18/06/2023, 20:02:00",
-      status: "Active",
-    },
-    {
-      id: "2",
-      name: "Blue Horizon",
-      address: "456 Ocean Dr, Miami, FL",
-      subscription: "Enterprise",
-      lastPayment: "10/06/2023",
-      lastScanned: "18/06/2023, 01:15:00",
-      status: "Active",
-    },
-    {
-      id: "3",
-      name: "Sunset Cafe",
-      address: "789 Sunset Blvd, Los Angeles, CA",
-      subscription: "Professional",
-      lastPayment: "05/06/2023",
-      lastScanned: "18/06/2023, 17:45:00",
-      status: "Active",
-    },
-    {
-      id: "4",
-      name: "Central Perk",
-      address: "90 Bedford St, New York, NY",
-      subscription: "Starter",
-      lastPayment: "01/06/2023",
-      lastScanned: "16/06/2023, 14:52:00",
-      status: "Active",
-    },
-    {
-      id: "5",
-      name: "Red Lion",
-      address: "567 State St, Chicago, IL",
-      subscription: "Starter",
-      lastPayment: "28/05/2023",
-      lastScanned: "30/05/2023, 22:18:00",
-      status: "Inactive",
-    },
-    {
-      id: "6",
-      name: "The Prancing Pony",
-      address: "1 Bree Rd, Middle Earth",
-      subscription: "Professional",
-      lastPayment: "25/05/2023",
-      lastScanned: "18/06/2023, 13:40:00",
-      status: "Active",
-    },
-    {
-      id: "7",
-      name: "Moe's Tavern",
-      address: "123 Springfield Ave, Springfield",
-      subscription: "Starter",
-      lastPayment: "20/05/2023",
-      lastScanned: "23/05/2023, 02:03:00",
-      status: "Inactive",
-    },
-    {
-      id: "8",
-      name: "The Three Broomsticks",
-      address: "Hogsmeade Village, Scotland",
-      subscription: "Enterprise",
-      lastPayment: "15/05/2023",
-      lastScanned: "17/06/2023, 20:57:00",
-      status: "Active",
-    },
-  ]);
+  // const [venues, setVenues] = useState<Venue[]>([]);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("All Venues");
@@ -138,7 +140,7 @@ export default function PubsTab() {
   // Fetch data from the API
   const fetchVenues = async () => {
     try {
-      const response = await api.get("/superuser/pubsdata/");
+      // const response = await api.get("/superuser/pubsdata/");
       // Once API is ready, uncomment this to use real data
       // setVenues(response.data);
     } catch (error) {

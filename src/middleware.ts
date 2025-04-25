@@ -6,6 +6,10 @@ export async function middleware(req: NextRequest) {
   const isSuperUser = req.cookies.get("isSuperUser")?.value === "true";
   const path = req.nextUrl.pathname;
 
+  if(path === "/admin/login"){
+    return NextResponse.next();
+  }
+
   // Redirect to login if not authenticated
   if (!accessToken) {
     return NextResponse.redirect(new URL("/login", req.url));
@@ -20,7 +24,7 @@ export async function middleware(req: NextRequest) {
 
   // Protect admin routes from non-superusers
   if (path.startsWith("/admin") && !isSuperUser) {
-    return NextResponse.redirect(new URL("/", req.url));
+    return NextResponse.redirect(new URL("/restaurant", req.url));
   }
 
   // Protect restaurant routes from superusers

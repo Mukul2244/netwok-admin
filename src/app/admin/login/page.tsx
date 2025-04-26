@@ -141,7 +141,6 @@ export default function AdminLogin() {
                             {...field}
                           />
                           <Button
-                            variant="new" 
                             type="button"
                             size="icon"
                             className="absolute right-3 top-3 h-4 w-4 text-muted-foreground"
@@ -187,5 +186,4 @@ export default function AdminLogin() {
     </div>
   );
 }
-
 

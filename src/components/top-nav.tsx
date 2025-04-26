@@ -34,7 +34,7 @@ export function TopNav({ title }: { title: string }) {
               height={32}
               src="/logo.svg"
               alt="Logo"
-              className="h-16 w-16 rounded-full"
+              className="h-16 w-16 "
             />
             <span className="text-2xl text-neutral-800 dark:text-neutral-100 font-semibold text-foreground">
               {title}

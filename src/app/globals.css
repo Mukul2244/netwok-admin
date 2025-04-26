@@ -120,3 +120,9 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+@layer components {
+  .bg-blue {
+    @apply bg-gradient-to-r from-blue-500 to-blue-700 dark:from-blue-700 dark:to-blue-900;
+  }
+}

@@ -2,7 +2,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter} from "next/navigation";
+import { useRouter } from 'next/navigation';
+
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -34,14 +35,10 @@ interface Venue {
   updatedAt?: string;
 }
 
-interface PageProps {
-  params: {
-    id: string;
-  };
-}
 
-export default function EditVenuePage({ params }: PageProps) {
-//   const {id}=useParams()
+
+export default function EditVenuePage( ) {
+// const params=useParams()
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingVenue, setIsLoadingVenue] = useState(true);
@@ -135,7 +132,7 @@ export default function EditVenuePage({ params }: PageProps) {
     };
 
     fetchVenue();
-  }, [params]);
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { id, value } = e.target;

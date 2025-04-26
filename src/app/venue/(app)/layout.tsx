@@ -7,13 +7,13 @@ import { Sidebar } from "@/components/sidebar";
 import {BarChart2,MessageSquare,QrCode,Settings,Users,Home, } from "lucide-react";
 
 const navigationItems = [
-  { name: "Restaurants", href: "/restaurant", icon: Home, value: "restaurants" },
-  { name: "Dashboard", href: "/restaurant/dashboard", icon: BarChart2, value: "dashboard" },
-  { name: "Analytics", href: "/restaurant/analytics", icon: BarChart2, value: "analytics" },
-  { name: "Chat Group", href: "/restaurant/chat-group", icon: MessageSquare, value: "chat-group" },
-  { name: "Users", href: "/restaurant/users", icon: Users, value: "users" },
-  { name: "QR Code", href: "/restaurant/qr-code", icon: QrCode, value: "qr-code" },
-  { name: "Settings", href: "/restaurant/settings", icon: Settings, value: "settings" },
+  { name: "Restaurants", href: "/venue", icon: Home, value: "restaurants" },
+  { name: "Dashboard", href: "/venue/dashboard", icon: BarChart2, value: "dashboard" },
+  { name: "Analytics", href: "/venue/analytics", icon: BarChart2, value: "analytics" },
+  { name: "Chat Group", href: "/venue/chat-group", icon: MessageSquare, value: "chat-group" },
+  { name: "Users", href: "/venue/users", icon: Users, value: "users" },
+  { name: "QR Code", href: "/venue/qr-code", icon: QrCode, value: "qr-code" },
+  { name: "Settings", href: "/venue/settings", icon: Settings, value: "settings" },
 ];
 
 export default function RestaurantLayout({

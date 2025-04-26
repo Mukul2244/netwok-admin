@@ -12,7 +12,7 @@ export async function middleware(req: NextRequest) {
 
   // Redirect to login if not authenticated
   if (!accessToken) {
-    return NextResponse.redirect(new URL("/login", req.url));
+    return NextResponse.redirect(new URL("/venue/login", req.url));
   }
 
   // Redirect based on user type when accessing the root path

@@ -10,7 +10,7 @@ import {Home, Users, Store, DollarSign, Activity} from "lucide-react"
 
 const navigationItems = [
     { name: "Overview", href: "/", icon: Home, value: "overview" },
-    { name: "Venues", href: "/admin/pubs", icon: Store, value: "pubs" },
+    { name: "Venues", href: "/admin/venues", icon: Store, value: "venues" },
     { name: "Users", href: "/admin/users", icon: Users, value: "users" },
     { name: "Revenue", href: "/admin/revenue", icon: DollarSign, value: "revenue" },
     { name: "Activity Log", href: "/admin/activity", icon: Activity, value: "activity" },

@@ -65,7 +65,7 @@ export default function EditVenuePage( ) {
     const fetchVenue = async () => {
       setIsLoadingVenue(true);
       try {
-    //     // Correctly unwrap params using React.use()
+ 
        
         
     //     // Fetch venue data using the unwrapped ID
@@ -168,7 +168,7 @@ export default function EditVenuePage( ) {
       });
       
       // Navigate back to venues list
-      router.push("/admin/pubs");
+      router.push("/admin/venues");
     } catch (error) {
       console.error("Error updating venue:", error);
       toast({
@@ -182,7 +182,7 @@ export default function EditVenuePage( ) {
   };
 
   const handleCancel = () => {
-    router.push("/admin/pubs");
+    router.push("/admin/venues");
   };
 
   if (isLoadingVenue) {
@@ -207,7 +207,7 @@ export default function EditVenuePage( ) {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Button onClick={() => router.push("/admin/pubs")}>
+            <Button onClick={() => router.push("/admin/venues")}>
               <ArrowLeft className="mr-2 h-4 w-4" />
               Return to Venues
             </Button>

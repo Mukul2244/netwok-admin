@@ -81,7 +81,7 @@ export default function NewVenuePage() {
       })
 
       // Redirect to venues list
-      router.push("/admin/pubs")
+      router.push("/admin/venues")
     } catch (error) {
       console.error("Error creating venue:", error)
       toast({
@@ -102,7 +102,7 @@ export default function NewVenuePage() {
           <div className="flex-1">
             <div className="flex items-center gap-2">
               <Button variant="ghost" size="icon" asChild>
-                <Link href="/admin/pubs">
+                <Link href="/admin/venues">
                   <ArrowLeft className="h-5 w-5" />
                 </Link>
               </Button>

@@ -68,7 +68,7 @@ const venues=[
     name: "Blue Horizon",
     address: "456 Ocean Dr, Miami, FL",
     subscription: "Enterprise",
-    lastPayment: "10/06/2023",
+    lastPayment: "22/04/2025",
     lastScanned: "18/06/2023, 01:15:00",
     status: "Active",
   },
@@ -232,7 +232,7 @@ export default function PubsTab() {
             className="rounded-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 border-0"
             asChild
           >
-            <Link href="/admin/pubs/new">
+            <Link href="/admin/venues/new">
               <Plus className="mr-2 h-4 w-4" />
               New Venue
             </Link>
@@ -426,7 +426,7 @@ export default function PubsTab() {
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuItem className="cursor-pointer flex items-center gap-2">
                           <Eye className="h-4 w-4" />
-                          <Link href={`/admin/pubs/${venue.id}`}>
+                          <Link href={`/admin/venues/${venue.id}`}>
                             View details
                           </Link>
                         </DropdownMenuItem>
@@ -435,12 +435,12 @@ export default function PubsTab() {
                           
                         >
                           <Edit className="h-4 w-4" /> 
-                          <Link href={`/admin/pubs/editVenue/${venue.id}`}>Edit Venue</Link>
+                          <Link href={`/admin/venues/editVenue/${venue.id}`}>Edit Venue</Link>
                         </DropdownMenuItem>
 
                         <DropdownMenuItem className="cursor-pointer flex items-center gap-2">
                           <BarChart className="h-4 w-4" />
-                          <Link href={`/admin/pubs/${venue.id}/usage`}>
+                          <Link href={`/admin/venues/${venue.id}/usage`}>
                             View usage
                           </Link>
                         </DropdownMenuItem>

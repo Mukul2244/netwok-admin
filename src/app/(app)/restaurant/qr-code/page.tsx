@@ -108,6 +108,7 @@ export default function RestaurantQRCodePage() {
         setLogo(response.data.logo);
         setQrCodeNumber(response.data.var_id);
         setExpiryTime(response.data.var_id_expiry_time);
+        console.log(response.data.var_id_expiry_time,"espiry timeeeeeeeeeeeeeeeeee")
         setRedirectUrl(
           `https://users.netwok.app/register?restaurantId=${restaurantId}&qrCodeNumber=${response.data.var_id}`
         );

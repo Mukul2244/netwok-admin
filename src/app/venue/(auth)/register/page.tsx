@@ -50,7 +50,6 @@ export default function Register() {
     <div className="flex items-center justify-center min-h-screen w-full bg-gradient-to-br from-purple-600 to-indigo-800 dark:from-indigo-900 dark:to-purple-900 p-4">
       <div className="w-full max-w-md max-h-lg bg-background rounded-lg shadow-xl overflow-hidden p-6">
         <div className="space-y-4">
-          {/* Add the logo at the top */}
           <div className="flex justify-center mb-6">
             <Image src="/logo.svg" alt="Logo" width={100} height={100} />
           </div>
@@ -157,7 +156,7 @@ export default function Register() {
           <p className="text-center text-muted-foreground text-sm mt-4">
             Already have an account?{" "}
             <Link
-              href="/login"
+              href="/venue/login"
               className="text-indigo-600 dark:text-indigo-400"
             >
               Login

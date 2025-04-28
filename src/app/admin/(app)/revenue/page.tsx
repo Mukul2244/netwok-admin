@@ -1,5 +1,5 @@
 "use client"
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { 
   BarChart, 
@@ -78,7 +78,7 @@ export default function RevenueTab() {
     }).format(value)
   }
 
-  const getData = async () => {
+  const getData = useCallback(async () => {
     setIsLoading(true)
     try {
       const response = await api.get('/superuser/')
@@ -104,11 +104,11 @@ export default function RevenueTab() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [])
   
   useEffect(() => {
     getData()
-  },[])
+  },[getData])
 
   const COLORS = ['#8884d8', '#82ca9d', '#ffc658', '#ff8042', '#0088FE']
 

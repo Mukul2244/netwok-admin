@@ -137,11 +137,10 @@ export default function AdminLogin() {
                           <Input
                             type={showPassword ? "text" : "password"}
                             placeholder="Password"
-                            className="pl-10 bg-background text-foreground border-border rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                            className="pl-10 bg-background text-foreground rounded-md"
                             {...field}
                           />
                           <Button
-                            variant="new" 
                             type="button"
                             size="icon"
                             className="absolute right-3 top-3 h-4 w-4 text-muted-foreground"
@@ -177,7 +176,7 @@ export default function AdminLogin() {
           <div className="text-sm text-muted-foreground text-center">
             <Link
               href="https://netwok.app"
-              className="text-primary hover:underline"
+              className="text-blue-500 hover:underline"
             >
               Return to homepage
             </Link>

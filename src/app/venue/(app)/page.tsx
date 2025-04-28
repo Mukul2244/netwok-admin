@@ -129,7 +129,7 @@ const [selectedChat, setSelectedChat] = useState<string | null>(null);
         }
       }
     }
-  },[]);
+  },[restaurants]);
 
   const handleSelectRestaurant = (restaurant:Restaurant) => {
     try {

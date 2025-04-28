@@ -9,6 +9,10 @@ import {BarChart2,MessageSquare,QrCode,Settings,Users,Home, } from "lucide-react
 const navigationItems = [
   { name: "Restaurants", href: "/venue", icon: Home, value: "restaurants" },
   { name: "Dashboard", href: "/venue/dashboard", icon: BarChart2, value: "dashboard" },
+<<<<<<< HEAD
+=======
+  { name: "Analytics", href: "/venue/analytics", icon: BarChart2, value: "analytics" },
+>>>>>>> main
   { name: "Chat Group", href: "/venue/chat-group", icon: MessageSquare, value: "chat-group" },
   { name: "Users", href: "/venue/users", icon: Users, value: "users" },
   { name: "QR Code", href: "/venue/qr-code", icon: QrCode, value: "qr-code" },

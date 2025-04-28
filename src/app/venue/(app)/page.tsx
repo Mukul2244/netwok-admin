@@ -216,7 +216,7 @@ const [selectedChat, setSelectedChat] = useState<string | null>(null);
             <span>Change Restaurant</span>
           </button>
           <button className="flex items-center gap-2 py-2 px-4 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors"
-           onClick={(() => router.push("/restaurant/qr-code"))}>
+           onClick={(() => router.push("/venue/qr-code"))}>
             <QrCode size={18} />
             <span>View QR Code</span>
           </button>

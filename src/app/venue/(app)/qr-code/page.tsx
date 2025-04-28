@@ -124,7 +124,7 @@ export default function RestaurantQRCodePage() {
   }, [restaurantId]);
 
   const backToDash = () => {
-    router.push("/restaurant");
+    router.push("/venue");
   };
 
   const handleTabChange = (value: string) => {

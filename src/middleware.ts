@@ -6,9 +6,10 @@ export async function middleware(req: NextRequest) {
   const isSuperUser = req.cookies.get("isSuperUser")?.value === "true";
   const path = req.nextUrl.pathname;
 
-  if(path === "/admin/login"){
+  if (path === "/admin/login" || path === "/venue/login") {
     return NextResponse.next();
   }
+  
 
   // Redirect to login if not authenticated
   if (!accessToken) {

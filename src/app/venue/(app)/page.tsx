@@ -1,9 +1,8 @@
 
-
-
 "use client"
 
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import api from "@/lib/axios";
 import { 
   Building2, 
@@ -82,6 +81,7 @@ const mockChats: Record<string, ChatMessage[]> = {
 
 export default function RestaurantDashboard() {
   const [activeTab, setActiveTab] = useState("overview");
+  const router=useRouter();
   const [selectedRestaurant, setSelectedRestaurant] = useState<Restaurant | null>(null);
 const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
 // const [visitors, setVisitors] = useState<Visitor[]>(mockVisitors);
@@ -95,7 +95,7 @@ const [selectedChat, setSelectedChat] = useState<string | null>(null);
     try {
       const response = await api.get(`/restaurants/?owner=${userId}`);
       setRestaurants(response.data);
-
+      // console.log(response.data,"------------------------")
       const restaurantId = localStorage.getItem("restaurantId");
       const qrCodeNumber = localStorage.getItem("qrCodeNumber");
 
@@ -215,7 +215,8 @@ const [selectedChat, setSelectedChat] = useState<string | null>(null);
             <Building2 size={18} />
             <span>Change Restaurant</span>
           </button>
-          <button className="flex items-center gap-2 py-2 px-4 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors">
+          <button className="flex items-center gap-2 py-2 px-4 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors"
+           onClick={(() => router.push("/venue/qr-code"))}>
             <QrCode size={18} />
             <span>View QR Code</span>
           </button>

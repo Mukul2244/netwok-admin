@@ -184,7 +184,7 @@ export default function VenueDetailsPage() {
           <h1 className="text-2xl font-bold mb-4">Venue Not Found</h1>
           <p className="mb-6">The venue you are looking for does not exist or has been removed.</p>
           <Button asChild>
-            <Link href="/admin/pubs">Back to Venues</Link>
+            <Link href="/admin/venues">Back to Venues</Link>
           </Button>
         </div>
       </div>
@@ -199,7 +199,7 @@ export default function VenueDetailsPage() {
           <div className="flex-1">
             <div className="flex items-center gap-2">
               <Button variant="ghost" size="icon" asChild>
-                <Link href="/admin/pubs">
+                <Link href="/admin/venues">
                   <ArrowLeft className="h-5 w-5" />
                 </Link>
               </Button>
@@ -208,14 +208,14 @@ export default function VenueDetailsPage() {
           </div>
           <div className="flex items-center gap-2">
             <Button variant="outline" asChild>
-              <Link href={`/admin/pubs/${venue.id}/usage`}>View Usage</Link>
+              <Link href={`/admin/venues/${venue.id}/usage`}>View Usage</Link>
             </Button>
             <Button 
               className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 border-0"
              
             >
               <Edit className="mr-2 h-4 w-4" />
-              <Link href={`/admin/pubs/editVenue/${venue.id}`}>Edit Venue</Link>
+              <Link href={`/admin/venues/editVenue/${venue.id}`}>Edit Venue</Link>
              
             </Button>
           </div>

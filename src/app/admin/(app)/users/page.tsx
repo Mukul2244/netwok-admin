@@ -291,12 +291,7 @@ export default function DashboardTab() {
                   <span className="text-sm">Avg. Revenue per Restaurant</span>
                   <Badge variant="outline" className="font-mono">${avgRevenuePerRestaurant.toLocaleString()}</Badge>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm">Restaurant to User Ratio</span>
-                  <Badge variant="outline" className="font-mono">
-                    1:{Math.round(dashboardData.customers.total_count / Math.max(1, dashboardData.restaurants.total_count))}
-                  </Badge>
-                </div>
+               
               </div>
             </div>
           </CardContent>
@@ -337,12 +332,7 @@ export default function DashboardTab() {
                   <span className="text-sm">Total Chatrooms</span>
                   <Badge variant="outline" className="font-mono">{dashboardData.private_chatrooms.total_count}</Badge>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm">Chatrooms per User</span>
-                  <Badge variant="outline" className="font-mono">
-                    {(dashboardData.private_chatrooms.total_count / Math.max(1, dashboardData.customers.total_count)).toFixed(2)}
-                  </Badge>
-                </div>
+                
                 <div className="flex justify-between items-center">
                   <span className="text-sm">Growth Rate</span>
                   <Badge variant={chatroomGrowth >= 0 ? "success" : "destructive"}>

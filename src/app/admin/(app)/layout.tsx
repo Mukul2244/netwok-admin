@@ -5,15 +5,16 @@ import { TopNav } from "@/components/top-nav";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { UserProvider } from "@/context/user-context";
 import { Sidebar } from "@/components/sidebar";
-import {Home, Users, Store, DollarSign, Activity } from "lucide-react"
+import {Home, Users, Store, DollarSign, Activity} from "lucide-react"
 
 
 const navigationItems = [
     { name: "Overview", href: "/", icon: Home, value: "overview" },
-    { name: "Pubs", href: "/admin/pubs", icon: Store, value: "pubs" },
+    { name: "Venues", href: "/admin/venues", icon: Store, value: "venues" },
     { name: "Users", href: "/admin/users", icon: Users, value: "users" },
     { name: "Revenue", href: "/admin/revenue", icon: DollarSign, value: "revenue" },
-    { name: "Activity", href: "/admin/activity", icon: Activity, value: "activity" },
+    { name: "Activity Log", href: "/admin/activity", icon: Activity, value: "activity" },
+   
   ];
 
 export default function AdminLayout({

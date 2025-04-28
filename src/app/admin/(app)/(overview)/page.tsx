@@ -193,6 +193,34 @@ export default function OverviewTab() {
     }).format(value);
   };
 
+  const handleExport = () => {
+    if (!recentCoupons || recentCoupons.length === 0) {
+      alert('No coupons to export!');
+      return;
+    }
+  
+    // Create CSV headers
+    const headers = Object.keys(recentCoupons[0]).join(',') + '\n';
+  
+    // Create CSV rows
+    const rows = recentCoupons
+      .map(coupon => Object.values(coupon).join(','))
+      .join('\n');
+  
+    const csvContent = headers + rows;
+  
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const href = URL.createObjectURL(blob);
+  
+    const link = document.createElement('a');
+    link.href = href;
+    link.download = 'recent-coupons.csv';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+  
+
   // Render growth indicator
   const renderGrowthIndicator = (rate: number) => {
     return rate > 0 ? (
@@ -343,7 +371,7 @@ export default function OverviewTab() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>Recent Coupons</CardTitle>
-                <Button variant="ghost" size="sm">
+                <Button variant="ghost" size="sm"  onClick={handleExport}>
                   <Download className="h-4 w-4 mr-1" />
                   Export
                 </Button>

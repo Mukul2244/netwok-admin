@@ -141,7 +141,7 @@ export default function SettingsTab() {
 
     setLoading(true);
     try {
-      await api.patch(`/restaurants/${restaurantId}/`, formData);
+      await api.patch(`/venue/${restaurantId}/`, formData);
       toast("Restaurant details updated successfully");
       form.reset();
       setValue("requireOTP", data.requireOTP);

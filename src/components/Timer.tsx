@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 
 interface TimerProps {
@@ -6,13 +7,17 @@ interface TimerProps {
 }
 
 const Timer: React.FC<TimerProps> = ({ expiryDate, onExpire }) => {
-  const [timeLeft, setTimeLeft] = useState<number>(
-    Math.max(0, new Date(expiryDate).getTime() - Date.now())
-  );
+  const calculateTimeRemaining = () => {
+    const now = new Date();
+    const targetDate = new Date(expiryDate);
+    return Math.max(0, targetDate.getTime() - now.getTime());
+  };
+
+  const [timeLeft, setTimeLeft] = useState<number>(calculateTimeRemaining());
 
   useEffect(() => {
     const interval = setInterval(() => {
-      const remainingTime = Math.max(0, new Date(expiryDate).getTime() - Date.now());
+      const remainingTime = calculateTimeRemaining();
       setTimeLeft(remainingTime);
 
       if (remainingTime === 0) {
@@ -26,9 +31,19 @@ const Timer: React.FC<TimerProps> = ({ expiryDate, onExpire }) => {
 
   const formatTime = (milliseconds: number) => {
     const totalSeconds = Math.floor(milliseconds / 1000);
-    const minutes = Math.floor(totalSeconds / 60);
+    
+    const days = Math.floor(totalSeconds / (3600 * 24));
+    const hours = Math.floor((totalSeconds % (3600 * 24)) / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
     const seconds = totalSeconds % 60;
-    return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+    
+    if (days > 0) {
+      return `${days}d ${hours}h ${minutes}m ${seconds.toString().padStart(2, "0")}s`;
+    } else if (hours > 0) {
+      return `${hours}h ${minutes}m ${seconds.toString().padStart(2, "0")}s`;
+    } else {
+      return `${minutes}m ${seconds.toString().padStart(2, "0")}s`;
+    }
   };
 
   return <span>{formatTime(timeLeft)}</span>;

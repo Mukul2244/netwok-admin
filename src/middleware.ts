@@ -18,17 +18,17 @@ export async function middleware(req: NextRequest) {
   // Redirect based on user type when accessing the root path
   if (path === "/") {
     return NextResponse.redirect(
-      new URL(isSuperUser ? "/admin" : "/restaurant", req.url)
+      new URL(isSuperUser ? "/admin" : "/venue", req.url)
     );
   }
 
   // Protect admin routes from non-superusers
   if (path.startsWith("/admin") && !isSuperUser) {
-    return NextResponse.redirect(new URL("/restaurant", req.url));
+    return NextResponse.redirect(new URL("/venue", req.url));
   }
 
   // Protect restaurant routes from superusers
-  if (path.startsWith("/restaurant") && isSuperUser) {
+  if (path.startsWith("/venue") && isSuperUser) {
     return NextResponse.redirect(new URL("/admin", req.url));
   }
 
@@ -39,7 +39,7 @@ export async function middleware(req: NextRequest) {
 export const config = {
   matcher: [
     "/admin/:path*", // Protect all admin routes
-    "/restaurant/:path*", // Protect all restaurant routes
+    "/venue/:path*", // Protect all venue routes
     "/", // Protect the root path
   ],
 };

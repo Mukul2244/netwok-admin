@@ -173,7 +173,7 @@ export default function VenueUsagePage() {
           <h1 className="text-2xl font-bold mb-4">Venue Not Found</h1>
           <p className="mb-6">The venue you are looking for does not exist or has been removed.</p>
           <Button asChild>
-            <Link href="/admin/pubs">Back to Venues</Link>
+            <Link href="/admin/venues">Back to Venues</Link>
           </Button>
         </div>
       </div>
@@ -223,6 +223,19 @@ export default function VenueUsagePage() {
     }
   };
 
+  const handleDownload = () => {
+    if (!venue) return;
+  
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(venue, null, 2));
+    const downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute("href", dataStr);
+    downloadAnchorNode.setAttribute("download", `${venue.name}_usage_data.json`);
+    document.body.appendChild(downloadAnchorNode); 
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
+  };
+  
+
   // Use API data if available, otherwise use placeholders
   const visitorsByDay = venue.visitorsByDay || getPlaceholderData('visitorsByDay');
   const visitorsByHour = venue.visitorsByHour || getPlaceholderData('visitorsByHour');
@@ -230,13 +243,7 @@ export default function VenueUsagePage() {
   const popularInterests = venue.popularInterests || getPlaceholderData('popularInterests');
   const recentScans = venue.recentScans || getPlaceholderData('recentScans');
 
-  // Function to get max value for chart scaling
-  // const getMaxValue = (data: { [key: string]: any }[], key: string): number => {
-  //   if (!data || data[0][key] === '--') return 100;
-  //   return Math.max(...data.map((d: { [key: string]: any }) => d[key]));
-  // };
-
-
+  
 
   const getMaxValue = (data: { [key: string]: number | string }[], key: string): number => {
     if (!data || data[0][key] === '--') return 100;
@@ -259,7 +266,7 @@ export default function VenueUsagePage() {
           <div className="flex-1">
             <div className="flex items-center gap-2">
               <Button variant="ghost" size="icon" asChild>
-                <Link href="/admin/pubs">
+                <Link href="/admin/venues">
                   <ArrowLeft className="h-5 w-5" />
                 </Link>
               </Button>
@@ -281,10 +288,11 @@ export default function VenueUsagePage() {
                 <SelectItem value="year">Last 12 Months</SelectItem>
               </SelectContent>
             </Select>
-            <Button variant="outline">
-              <Download className="mr-2 h-4 w-4" />
-              Export
-            </Button>
+            <Button onClick={handleDownload}>
+  <Download className="mr-2 h-4 w-4" />
+  Export
+</Button>
+
           </div>
         </header>
         

@@ -13,6 +13,7 @@ export async function middleware(req: NextRequest) {
   ) {
     return NextResponse.next();
   }
+  
 
   // Redirect to login if not authenticated
   if (!accessToken) {

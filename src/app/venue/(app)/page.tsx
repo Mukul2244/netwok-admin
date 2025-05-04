@@ -115,7 +115,7 @@ const [selectedChat, setSelectedChat] = useState<string | null>(null);
 
   useEffect(() => {
     const user = safeParseJSON("user");
-    if (user && user.id) {
+    if (user && user?.id) {
       fetchRestaurants(user.id.toString());
     } else {
       // Fallback to mock data for demonstration

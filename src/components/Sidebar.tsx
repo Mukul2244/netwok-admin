@@ -2,12 +2,7 @@
 
 import Link from "next/link";
 import {
-  Activity,
-  DollarSign,
-  Home,
   LogOut,
-  Store,
-  Users,
   X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -25,33 +20,24 @@ import {
 } from "@/components/ui/alert-dialog";
 import { logout } from "@/lib/logout";
 
-const navigationItems = [
-  { name: "Overview", href: "/admin", icon: Home, value: "overview" },
-  { name: "Venues", href: "/admin/venues", icon: Store, value: "venues" },
-  { name: "Users", href: "/admin/users", icon: Users, value: "users" },
-  {
-    name: "Revenue",
-    href: "/admin/revenue",
-    icon: DollarSign,
-    value: "revenue",
-  },
-  {
-    name: "Activity Log",
-    href: "/admin/activity",
-    icon: Activity,
-    value: "activity",
-  },
-];
-
 export default function Sidebar({
   openSideBar,
   setOpenSideBar,
+  navigationItems,
 }: {
   openSideBar: boolean;
   setOpenSideBar: React.Dispatch<React.SetStateAction<boolean>>;
+  navigationItems: {
+    name: string;
+    href: string;
+    icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+    value: string;
+  }[];
 }) {
   const handleLogout = async () => {
     localStorage.removeItem("user");
+    localStorage.removeItem("restaurantId");
+    localStorage.removeItem("qrCodeNumber");
     await logout();
   };
   return (

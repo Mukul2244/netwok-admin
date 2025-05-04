@@ -4,9 +4,13 @@ import { useState } from "react";
 import type React from "react";
 import Link from "next/link";
 import {
-  Home,
   Menu,
   Plus,
+  Activity,
+  DollarSign,
+  Home,
+  Store,
+  Users,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -18,10 +22,26 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   const [openSideBar, setOpenSideBar] = useState(false);
-
+  const navigationItems = [
+    { name: "Overview", href: "/admin", icon: Home, value: "overview" },
+    { name: "Venues", href: "/admin/venues", icon: Store, value: "venues" },
+    { name: "Users", href: "/admin/users", icon: Users, value: "users" },
+    {
+      name: "Revenue",
+      href: "/admin/revenue",
+      icon: DollarSign,
+      value: "revenue",
+    },
+    {
+      name: "Activity Log",
+      href: "/admin/activity",
+      icon: Activity,
+      value: "activity",
+    },
+  ];
   return (
     <div className="flex min-h-screen bg-background">
-      <Sidebar openSideBar={openSideBar} setOpenSideBar={setOpenSideBar} />
+      <Sidebar openSideBar={openSideBar} setOpenSideBar={setOpenSideBar} navigationItems={navigationItems} />
 
       {/* Main content */}
       <div className="flex-1 md:ml-64">

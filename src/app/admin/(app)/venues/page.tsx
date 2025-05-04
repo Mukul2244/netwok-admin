@@ -23,7 +23,6 @@ import {
   MapPin,
   Calendar,
   QrCode,
-  Plus,
   Eye,
   Edit,
   BarChart,
@@ -227,7 +226,7 @@ export default function PubsTab() {
           </p>
         </div>
         <div className="flex items-center gap-4">
-          <Button
+          {/* <Button
             size="sm"
             className="rounded-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 border-0"
             asChild
@@ -236,7 +235,7 @@ export default function PubsTab() {
               <Plus className="mr-2 h-4 w-4" />
               New Venue
             </Link>
-          </Button>
+          </Button> */}
         </div>
       </div>
 

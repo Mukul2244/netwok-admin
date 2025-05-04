@@ -16,7 +16,19 @@ import { Button } from "@/components/ui/button";
 import { paymentDetailsSchema } from "@/schemas/RegisterSchema";
 type PaymentDetailsForm = z.infer<typeof paymentDetailsSchema>;
 
-export default function PaymentDetails() {
+interface PaymentDetailsProps {
+  data?: PaymentDetailsForm;
+  updateData: (values: PaymentDetailsForm) => void;
+  onSubmit: () => void;
+  onPrev?: () => void;
+}
+
+export default function PaymentDetails({
+  // data,
+  updateData,
+  onSubmit,
+  // onPrev,
+}: PaymentDetailsProps) {
   const form = useForm<PaymentDetailsForm>({
     resolver: zodResolver(paymentDetailsSchema),
     defaultValues: {
@@ -26,9 +38,9 @@ export default function PaymentDetails() {
     },
   });
 
-  const onSubmit = (data: PaymentDetailsForm) => {
-    console.log(data);
-    alert("Payment details submitted successfully!");
+  const handleSubmit = (values: PaymentDetailsForm) => {
+    updateData(values); // Update parent state
+    onSubmit(); // Move to next step or finish
   };
 
   return (
@@ -65,7 +77,7 @@ export default function PaymentDetails() {
         </div>
       </div>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
           <FormField
             control={form.control}
             name="cardNumber"

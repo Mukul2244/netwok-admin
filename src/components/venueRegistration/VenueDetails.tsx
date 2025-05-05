@@ -38,19 +38,25 @@ const venueTypes = [
   { value: "coworking", label: "Coworking Space" },
 ];
 
-export default function VenueDetails({ onNext }: { onNext: () => void }) {
+interface Props {
+  data: VenueDetailsForm;
+  updateData: (values: VenueDetailsForm) => void;
+  onNext: () => void;
+}
+
+export default function VenueDetails({ data, updateData, onNext }: Props) {
   const form = useForm<VenueDetailsForm>({
     resolver: zodResolver(venueDetailsSchema),
     defaultValues: {
-      venueName: "",
-      venueType: "",
-      capacity: 0,
-      description: "",
+      venueName: data.venueName || "",
+      venueType: data.venueType || "",
+      capacity: data.capacity || 0,
+      description: data.description || "",
     },
   });
 
-  const onSubmit = (data: VenueDetailsForm) => {
-    console.log(data);
+  const onSubmit = (values: VenueDetailsForm) => {
+    updateData(values);
     onNext();
   };
 

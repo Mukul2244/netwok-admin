@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
   CreditCard,
@@ -11,20 +11,27 @@ import {
   Phone,
   Save,
   User,
-} from "lucide-react"
+} from "lucide-react";
 
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { useToast } from "@/hooks/use-toast"
-import { Toaster } from "@/components/ui/toaster"
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/hooks/use-toast";
+import { Toaster } from "@/components/ui/toaster";
 
 export default function NewVenuePage() {
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     venueName: "",
     venueType: "",
@@ -41,58 +48,60 @@ export default function NewVenuePage() {
     billingAddress: "",
     paymentMethod: "",
     status: "active",
-  })
-  const router = useRouter()
-  const { toast } = useToast()
+  });
+  const router = useRouter();
+  const { toast } = useToast();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { id, value } = e.target;
     setFormData((prev) => ({
       ...prev,
       [id.replace("venue-", "").replace("contact-", "")]: value,
     }));
   };
-  
-  const handleRadioChange = (name:string, value:string) => {
+
+  const handleRadioChange = (name: string, value: string) => {
     setFormData((prev) => ({
       ...prev,
       [name]: value,
-    }))
-  }
+    }));
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
-  
 
     try {
       // In a real application, you would send this data to your API
       // For now, we'll simulate a successful creation
-      console.log("Creating venue with data:", formData)
+      console.log("Creating venue with data:", formData);
 
       // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500))
+      await new Promise((resolve) => setTimeout(resolve, 1500));
 
       // Show success toast
       toast({
         title: "Venue created successfully",
         description: `${formData.venueName} has been added to the system.`,
         variant: "default",
-      })
+      });
 
       // Redirect to venues list
-      router.push("/admin/venues")
+      router.push("/admin/venues");
     } catch (error) {
-      console.error("Error creating venue:", error)
+      console.error("Error creating venue:", error);
       toast({
         title: "Error creating venue",
-        description: "There was a problem creating the venue. Please try again.",
+        description:
+          "There was a problem creating the venue. Please try again.",
         variant: "destructive",
-      })
+      });
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="flex min-h-screen bg-background">
@@ -115,14 +124,18 @@ export default function NewVenuePage() {
             <Tabs defaultValue="venue-details" className="space-y-4">
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="venue-details">Venue Details</TabsTrigger>
-                <TabsTrigger value="contact-details">Contact Details</TabsTrigger>
+                <TabsTrigger value="contact-details">
+                  Contact Details
+                </TabsTrigger>
               </TabsList>
 
               <TabsContent value="venue-details" className="space-y-4">
                 <Card>
                   <CardHeader>
                     <CardTitle>Venue Information</CardTitle>
-                    <CardDescription>Enter the basic information about the venue</CardDescription>
+                    <CardDescription>
+                      Enter the basic information about the venue
+                    </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -207,19 +220,28 @@ export default function NewVenuePage() {
                       <Label>Subscription Plan</Label>
                       <RadioGroup
                         value={formData.subscriptionPlan}
-                        onValueChange={(value) => handleRadioChange("subscriptionPlan", value)}
+                        onValueChange={(value) =>
+                          handleRadioChange("subscriptionPlan", value)
+                        }
                       >
                         <div className="flex items-center space-x-2">
                           <RadioGroupItem value="starter" id="starter" />
                           <Label htmlFor="starter">Starter ($29/month)</Label>
                         </div>
                         <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="professional" id="professional" />
-                          <Label htmlFor="professional">Professional ($79/month)</Label>
+                          <RadioGroupItem
+                            value="professional"
+                            id="professional"
+                          />
+                          <Label htmlFor="professional">
+                            Professional ($79/month)
+                          </Label>
                         </div>
                         <div className="flex items-center space-x-2">
                           <RadioGroupItem value="enterprise" id="enterprise" />
-                          <Label htmlFor="enterprise">Enterprise ($199/month)</Label>
+                          <Label htmlFor="enterprise">
+                            Enterprise ($199/month)
+                          </Label>
                         </div>
                       </RadioGroup>
                     </div>
@@ -231,7 +253,9 @@ export default function NewVenuePage() {
                 <Card>
                   <CardHeader>
                     <CardTitle>Contact Information</CardTitle>
-                    <CardDescription>Enter the contact details for the venue</CardDescription>
+                    <CardDescription>
+                      Enter the contact details for the venue
+                    </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -302,7 +326,12 @@ export default function NewVenuePage() {
                           className="pl-10"
                           placeholder="Billing address (if different from venue address)"
                           value={formData.billingAddress}
-                          onChange={(e) => setFormData((prev) => ({ ...prev, billingAddress: e.target.value }))}
+                          onChange={(e) =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              billingAddress: e.target.value,
+                            }))
+                          }
                         />
                       </div>
                     </div>
@@ -317,14 +346,24 @@ export default function NewVenuePage() {
                           placeholder="Credit card or bank details"
                           required
                           value={formData.paymentMethod}
-                          onChange={(e) => setFormData((prev) => ({ ...prev, paymentMethod: e.target.value }))}
+                          onChange={(e) =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              paymentMethod: e.target.value,
+                            }))
+                          }
                         />
                       </div>
                     </div>
 
                     <div className="space-y-2">
                       <Label>Account Status</Label>
-                      <RadioGroup value={formData.status} onValueChange={(value) => handleRadioChange("status", value)}>
+                      <RadioGroup
+                        value={formData.status}
+                        onValueChange={(value) =>
+                          handleRadioChange("status", value)
+                        }
+                      >
                         <div className="flex items-center space-x-2">
                           <RadioGroupItem value="active" id="active" />
                           <Label htmlFor="active">Active</Label>
@@ -338,25 +377,27 @@ export default function NewVenuePage() {
                   </CardContent>
                   <CardFooter>
                     <div className="flex justify-between w-full">
-                    <Button
-  variant="outline"
-  type="button"
-  onClick={() => {
-    const element = document.querySelector('[data-value="venue-details"]') as HTMLElement;
-    element?.click();
-  }}
->
-  Previous
-</Button>
+                      <Button
+                        variant="outline"
+                        type="button"
+                        onClick={() => {
+                          const element = document.querySelector(
+                            '[data-value="venue-details"]'
+                          ) as HTMLElement;
+                          element?.click();
+                        }}
+                      >
+                        Previous
+                      </Button>
 
-                      <Button type="submit" disabled={isLoading}>
+                      <Button variant="default" className="ml-auto bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500" type="submit" disabled={isLoading}>
                         {isLoading ? (
                           <>Processing...</>
                         ) : (
-                          <>
-                            <Save className="mr-2 h-4 w-4" />
+                          <div className="flex items-center">
+                            <Save className=" mr-2 h-4 w-4" />
                             Create Venue
-                          </>
+                          </div>
                         )}
                       </Button>
                     </div>
@@ -369,5 +410,5 @@ export default function NewVenuePage() {
       </div>
       <Toaster />
     </div>
-  )
+  );
 }

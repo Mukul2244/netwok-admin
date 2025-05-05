@@ -28,11 +28,20 @@ const venueLocationSchema = z.object({
 
 type VenueLocationForm = z.infer<typeof venueLocationSchema>;
 
-export default function VenueLocation({
-  onNext,
-}: {
+interface Props {
+  data?: VenueLocationForm;
+  updateData: (values: VenueLocationForm) => void;
   onNext: () => void;
-}) {
+  onPrev?: () => void;
+
+}
+export default function VenueLocation({
+  // data,
+  updateData,
+  onNext,
+  // onPrev,
+}: Props) {
+
   const form = useForm<VenueLocationForm>({
     resolver: zodResolver(venueLocationSchema),
     defaultValues: {
@@ -44,8 +53,8 @@ export default function VenueLocation({
     },
   });
 
-  const onSubmit = (data: VenueLocationForm) => {
-    console.log(data);
+  const onSubmit = (values: VenueLocationForm) => {
+    updateData(values);
     onNext();
   };
 

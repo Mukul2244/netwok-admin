@@ -277,7 +277,7 @@ export default function ActivityLogPage() {
     <div className="min-h-screen bg-background">
       {/* Main content */}
       <div className="flex-1">
-        <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">
+        <header className=" top-0 z-30 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">
           <div className="flex items-center gap-2 font-bold text-xl">
             <div className="bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg p-1.5">
               <BarChart3 className="h-5 w-5 text-white" />

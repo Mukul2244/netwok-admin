@@ -18,11 +18,15 @@ import { accountSetupSchema } from "@/schemas/RegisterSchema";
 
 type AccountSetupForm = z.infer<typeof accountSetupSchema>;
 
+interface AccountSetupProps {
+  data?: AccountSetupForm;
+  updateData?: (values: AccountSetupForm) => void;
+  onNext: () => void;
+  onPrev?: () => void;
+}
 export default function AccountSetup({
   onNext,
-}: {
-  onNext: () => void;
-}) {
+}: AccountSetupProps ) {
   const form = useForm<AccountSetupForm>({
     resolver: zodResolver(accountSetupSchema),
     defaultValues: {

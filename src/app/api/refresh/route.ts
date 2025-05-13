@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
 
   try {
     // Send request to Django backend to refresh token
-    const response = await axios.post("/api/token/refresh/", {
+    const response = await axios.post("/token/refresh/", {
       refresh
     });
 

@@ -30,7 +30,7 @@ api.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        const newAccessToken = await api.post('/api/refresh',{
+        const newAccessToken = await api.post('/token/refresh',{
           refreshToken: await getCookie("refreshToken")
         })
         axios.defaults.headers.common["Authorization"] = `Bearer ${newAccessToken}`;

@@ -84,6 +84,7 @@ export default function VenueDetails({ data, updateData, onNext }: Props) {
                   <Input
                     className="bg-gray-800/50 border-gray-700 text-gray-200 focus:border-purple-500 focus:ring-purple-500"
                     placeholder="Enter your venue name"
+                   
                     {...field}
                   />
                 </FormControl>

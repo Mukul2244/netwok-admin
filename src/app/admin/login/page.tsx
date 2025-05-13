@@ -46,22 +46,39 @@ export default function AdminLogin() {
   const handleLogin = async (data: z.infer<typeof LoginSchema>) => {
     setIsLoading(true);
     try {
-      const response = await api.post("/api/token/", data);
+      const response = await api.post("/login/superuser/", data);
+
+      let userType = "";
+      if (response.data.is_superuser) {
+        userType = "superuser";
+      } else if (response.data.is_customer) {
+        userType = "customer";
+      } else if (response.data.is_venue_owner) {
+        userType = "venue_owner";
+      }
       localStorage.setItem(
         "user",
         JSON.stringify({
-          username: response.data.user.username,
-          email: response.data.user.email,
-          id: response.data.user.id,
+          username: response.data.username,
+          email: response.data.email,
+          userType: userType,
+          id: response.data.id,
         })
       );
-      setUserDetails(response.data.user);
+      const user = {
+        username: response.data.username,
+        email: response.data.email,
+        userType: userType,
+        id: response.data.id,
+      };
+      setUserDetails(user);
+
       await axios.post("/api/setCookie", {
         accessToken: response.data.access,
         refreshToken: response.data.refresh,
-        isSuperuser: response.data.user.is_superuser,
+        isSuperuser: response.data.is_superuser,
       });
-      if (response.data.user.is_superuser) {
+      if (response.data.is_superuser) {
         router.push("/admin");
         toast("Account logged in successfully");
       }

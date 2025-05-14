@@ -28,7 +28,7 @@ export default function AccountSetup({
   data,
   onNext,
   updateData,
-  onPrev
+  
 }: Props ) {
   const form = useForm<AccountSetupForm>({
     resolver: zodResolver(accountSetupSchema),

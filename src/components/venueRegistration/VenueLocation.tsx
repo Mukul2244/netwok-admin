@@ -29,7 +29,7 @@ export default function VenueLocation({
   data,
   updateData,
   onNext,
-  onPrev,
+  
 }: Props) {
 
   const form = useForm<VenueLocationForm>({

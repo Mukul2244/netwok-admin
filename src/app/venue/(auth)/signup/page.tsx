@@ -7,7 +7,6 @@ import Image from "next/image";
 import { ArrowLeft, User, Lock, Eye, EyeOff, Mail } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { AxiosError } from "axios";
@@ -32,40 +31,8 @@ import {
 } from "@/components/ui/select";
 import api from "@/lib/axios";
 
-// Form validation schema
-const formSchema = z.object({
-    first_name: z.string()
-      .min(2, { message: "First name must have at least 2 characters" })
-      .max(50, { message: "First name must be under 50 characters" }),
-  
-    last_name: z.string()
-      .min(2, { message: "Last name must have at least 2 characters" })
-      .max(50, { message: "Last name must be under 50 characters" }),
-  
-    email: z.string()
-      .email({ message: "Enter a valid email address" }),
-  
-    username: z.string()
-      .min(3, { message: "Username must have at least 3 characters" })
-      .max(20, { message: "Username must be under 20 characters" })
-      .regex(/^[a-zA-Z0-9_]+$/, {
-        message: "Username can only contain letters, numbers, and underscores",
-      }),
-  
-    password: z.string()
-      .min(8, { message: "Password must be at least 8 characters long" })
-      .max(100, { message: "Password is too long" })
-      .regex(/[a-z]/, { message: "Password must contain at least one lowercase letter" })
-      .regex(/[A-Z]/, { message: "Password must contain at least one uppercase letter" })
-      .regex(/[0-9]/, { message: "Password must contain at least one number" })
-      .regex(/[^a-zA-Z0-9]/, { message: "Password must contain at least one special character" }),
-  
-    gender: z.enum(["male", "female", "other"], {
-      required_error: "Please select a gender",
-      invalid_type_error: "Invalid gender selection",
-    }),
-  });
-  
+import { formSchema } from "@/schemas/RegisterOwnerSchema";
+
 interface Register{
     first_name: string;
     last_name:string;
@@ -109,8 +76,11 @@ export default function VenueRegistration() {
 
 const response = await api.post("/register/venue_owner/", formData);
 
-toast.success("Registration successful!");
-router.push("/venue/login");
+if(response.status==200 || response.status==201){
+  toast.success("Registration successful!");
+  router.push("/venue/login");
+}
+
 
     }  catch (error) {
         

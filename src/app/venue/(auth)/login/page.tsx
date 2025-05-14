@@ -103,16 +103,7 @@ export default function VenueLoginPage() {
           <ArrowLeft className="h-5 w-5" />
           <span className="text-sm">Home</span>
         </Link>
-        <div>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-gray-300 hover:text-white hover:bg-gray-800 text-xs px-3 py-1 h-auto"
-            asChild
-          >
-            <Link href="/venue/registerVenue">Register Venue</Link>
-          </Button>
-        </div>
+       
       </header>
 
       <main className="relative z-10 flex-1 px-4 py-6 flex flex-col items-center justify-center">

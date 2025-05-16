@@ -1,181 +1,146 @@
-
-
 "use client";
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from "react";
+import { formatDistanceToNow } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { 
- LineChart, Line, XAxis, YAxis, CartesianGrid, 
-  Tooltip, ResponsiveContainer, AreaChart, Area 
-} from 'recharts';
-import { 
-  Building, Users, DollarSign, MessageSquare, 
-  ArrowUp, ArrowDown, Download, Clock
-} from 'lucide-react';
+import AnalyticsTab from "@/components/AnalyticsTab";
+import {
+  Building,
+  Users,
+  DollarSign,
+  MessageSquare,
+  ArrowUp,
+  ArrowDown,
+  Download,
+  Loader2,
+} from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
+import api from "@/lib/axios";
 
-
-// interface PlatformOverview {
-//   totalVenues: number;
-//   activeUsers: number;
-//   monthlyRevenue: number;
-//   activeSubscriptions: number;
-//   userGrowthRate: number;
-//   revenueGrowthRate: number;
-//   venueGrowthRate: number;
-//   subscriptionGrowthRate: number;
-// }
-
-// interface SignupEntry {
-//   id: string;
-//   name: string;
-//   location: string;
-//   timeAgo: string;
-//   initials: string;
-// }
-
-// interface CouponEntry {
-//   code: string;
-//   discount: string;
-//   usageCount: number;
-//   type: string;
-// }
-
-// interface ActivityEntry {
-//   event: string;
-//   timeAgo: string;
-// }
-
-// interface SubscriptionPlan {
-//   name: string;
-//   count: number;
-//   percentage: number;
-//   color: string;
-// }
-
-
-const platformOverview={
-  totalVenues: 142,
-  activeUsers: 2850,
-  monthlyRevenue: 12234,
-  activeSubscriptions: 136,
-  userGrowthRate: 8.4,
-  revenueGrowthRate: 4.2,
-  venueGrowthRate: 12,
-  subscriptionGrowthRate: 5.8
+interface PlatformOverview {
+  totalVenues: number;
+  activeUsers: number;
+  monthlyRevenue: number;
+  activeSubscriptions: number;
+  userGrowthRate: number;
+  revenueGrowthRate: number;
+  venueGrowthRate: number;
+  subscriptionGrowthRate: number;
 }
 
+interface SignupEntry {
+  _id: string;
+  name: string;
+  city: string;
+  time: string;
+  logo: string;
+}
 
-const recentSignups=[
-  { id: "CP", name: "Central Perk", location: "New York", timeAgo: "2 hours ago", initials: "CP" },
-  { id: "TG", name: "The Golden Pub", location: "London", timeAgo: "5 hours ago", initials: "TG" },
-  { id: "BH", name: "Blue Horizon", location: "Miami", timeAgo: "1 day ago", initials: "BH" },
-  { id: "SC", name: "Sunset Cafe", location: "Los Angeles", timeAgo: "2 days ago", initials: "SC" },
-  { id: "RL", name: "Red Lion", location: "Chicago", timeAgo: "3 days ago", initials: "RL" }
-]
+interface CouponEntry {
+  token: string;
+  description: string;
+  redemptions: string;
+}
 
-const recentCoupons=[ { code: "SUMMER23", discount: "20% off", usageCount: 12, type: "seasonal" },
-  { code: "NEWVENUE", discount: "Free month", usageCount: 8, type: "onboarding" },
-  { code: "UPGRADE50", discount: "50% off upgrade", usageCount: 5, type: "upgrade" },
-  { code: "REFER10", discount: "10% off", usageCount: 3, type: "referral" }]
+interface ActivityEntry {
+  date: string;
+  time: string;
+  log: string;
+}
 
+interface SubscriptionPlan {
+  plan: string;
+  count: number;
+  percentage: number;
+}
+type AnalyticsItem = {
+  month: string;
+  revenue: number;
+  total_users: number;
+  total_messages: number;
+};
 
-const recentActivity=[ { event: "New venue registered: The Golden Pub", timeAgo: "10 min ago" },
-  { event: "Payment received: $79.00 from Blue Horizon", timeAgo: "1 hour ago" },
-  { event: "Subscription upgraded: Sunset Cafe to Professional", timeAgo: "3 hours ago" },
-  { event: "New coupon created: SUMMER23", timeAgo: "5 hours ago" },
-  { event: "User reported issue with QR code scanning", timeAgo: "1 day ago" }]
-
-const subscriptionPlans=[ { name: "Starter", count: 42, percentage: 31, color: "#8b5cf6" },
-  { name: "Professional", count: 78, percentage: 57, color: "#ec4899" },
-  { name: "Enterprise", count: 16, percentage: 12, color: "#3b82f6" }]
-
-
-const revenueData=[{ month: 'Jan', revenue: 6500 },
-  { month: 'Feb', revenue: 7200 },
-  { month: 'Mar', revenue: 8300 },
-  { month: 'Apr', revenue: 9100 },
-  { month: 'May', revenue: 10800 },
-  { month: 'Jun', revenue: 12234 }]
-
-const userGrowthData=[ { month: 'Jan', users: 1450 },
-  { month: 'Feb', users: 1680 },
-  { month: 'Mar', users: 1950 },
-  { month: 'Apr', users: 2250 },
-  { month: 'May', users: 2630 },
-  { month: 'Jun', users: 2850 }]
-
-
-
+type AnalyticsResponse = {
+  analytics: AnalyticsItem[];
+};
 
 export default function OverviewTab() {
-  // const [platformOverview, setPlatformOverview] = useState<PlatformOverview>();
-  
-  // const [revenueData, setRevenueData] = useState<{ month: string; revenue: number }[]>([]);
-  
-  // const [userGrowthData, setUserGrowthData] = useState<{ month: string; users: number }[]>([]);
+  const [platformOverview, setPlatformOverview] = useState<PlatformOverview>({
+    totalVenues: 0,
+    activeUsers: 0,
+    monthlyRevenue: 0,
+    activeSubscriptions: 0,
+    userGrowthRate: 0,
+    revenueGrowthRate: 0,
+    venueGrowthRate: 0,
+    subscriptionGrowthRate: 0,
+  });
+  const [analyticsData, setAnalyticsData] = useState<AnalyticsItem[]>([]);
 
-  
+  const [isLoading, setIsLoading] = useState(true);
 
   // Recent signups data
-  // const [recentSignups, setRecentSignups] = useState<SignupEntry[]>([]);
+  const [recentSignups, setRecentSignups] = useState<SignupEntry[]>([]);
 
   // Recent coupons data
-  // const [recentCoupons, setRecentCoupons] = useState<CouponEntry[]>([]);
+  const [recentCoupons, setRecentCoupons] = useState<CouponEntry[]>([]);
 
   // Recent activity data
-  // const [recentActivity, setRecentActivity] = useState<ActivityEntry[]>([]);
+  const [recentActivity, setRecentActivity] = useState<ActivityEntry[]>([]);
 
   // Subscription distribution data
-  // const [subscriptionPlans, setSubscriptionPlans] = useState<SubscriptionPlan[]>([]);
-  
+  const [subscriptionPlans, setSubscriptionPlans] = useState<
+    SubscriptionPlan[]
+  >([]);
+
   // Fetch data from the API
+
   const getData = async () => {
     try {
-      // const response = await api.get('/superuser/');
-      // const data = response.data;
-      
-      // Once API is ready, we'll update the state here
-      // For now, we're using mock data
-      
-      // Example of how we would update the state with real API data:
-      // setPlatformOverview({
-      //   totalVenues: data.restaurants.total_count || 0,
-      //   activeUsers: data.customers.total_count || 0,
-      //   monthlyRevenue: data.restaurants.total_revenue || 0,
-      //   activeSubscriptions: data.subscriptions.total_count || 0,
-      //   userGrowthRate: calculateGrowthRate(data.customers),
-      //   revenueGrowthRate: calculateGrowthRate(data.revenue),
-      //   venueGrowthRate: calculateGrowthRate(data.restaurants),
-      //   subscriptionGrowthRate: calculateGrowthRate(data.subscriptions)
-      // });
+      setIsLoading(true);
 
-      // Process revenue data once API is ready
-      // if (data.restaurants.monthly_counts && data.restaurants.monthly_counts.length > 0) {
-      //   setRevenueData(data.restaurants.monthly_counts.map((item: { month: string; total_revenue: number }) => ({
-      //     month: item.month,
-      //     revenue: item.total_revenue
-      //   })));
-      // }
+      const [res1, res2, res3] = await Promise.all([
+        api.get("/su/dashboard/"),
+        api.get("/su/dashboard/overview/"),
+        api.get("/su/dashboard/analytics/"),
+      ]);
 
-      // Process user data once API is ready
-      // if (data.customers.monthly_counts && data.customers.monthly_counts.length > 0) {
-      //   setUserGrowthData(data.customers.monthly_counts.map((item: { month: string; count: number }) => ({
-      //     month: item.month,
-      //     users: item.count
-      //   })));
-      // }
-      
+      const data = res1.data;
+      const data1 = res2.data;
+      const data2: AnalyticsResponse = res3.data;
+
+      console.log(data, "overview data");
+      console.log(data1, "dash overview data");
+
+      // Platform overview
+      setPlatformOverview({
+        totalVenues: data.total_venues || 0,
+        activeUsers: data.active_users || 0,
+        monthlyRevenue: data.monthly_revenue || 0,
+        activeSubscriptions: data.active_subscriptions || 0,
+        userGrowthRate: data.active_users_delta_pct ?? 0,
+        revenueGrowthRate: data.revenue_delta_pct ?? 0,
+        venueGrowthRate: data.venues_delta ?? 0,
+        subscriptionGrowthRate: data.active_subscriptions_delta ?? 0,
+      });
+
+      // Overview data
+      setRecentSignups(data1.recent_signups);
+      setRecentCoupons(data1.recent_coupons);
+      setRecentActivity(data1.recent_activity);
+      setSubscriptionPlans(data1.subscription_distribution);
+
+      setAnalyticsData(data2.analytics);
     } catch (error) {
       console.error("Error fetching dashboard data:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   useEffect(() => {
     getData();
-    // Later we can add a refresh interval if needed
-    // const interval = setInterval(getData, 60000);
-    // return () => clearInterval(interval);
+    
   }, []);
 
   // Helper function to format numbers with commas
@@ -185,41 +150,40 @@ export default function OverviewTab() {
 
   // Format currency
   const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
       minimumFractionDigits: 0,
-      maximumFractionDigits: 0
+      maximumFractionDigits: 0,
     }).format(value);
   };
 
   const handleExport = () => {
     if (!recentCoupons || recentCoupons.length === 0) {
-      alert('No coupons to export!');
+      alert("No coupons to export!");
       return;
     }
-  
+
     // Create CSV headers
-    const headers = Object.keys(recentCoupons[0]).join(',') + '\n';
-  
+    const headers = Object.keys(recentCoupons[0]).join(",") + "\n";
+
     // Create CSV rows
     const rows = recentCoupons
-      .map(coupon => Object.values(coupon).join(','))
-      .join('\n');
-  
+      .map((coupon) => Object.values(coupon).join(","))
+      .join("\n");
+
     const csvContent = headers + rows;
-  
-    const blob = new Blob([csvContent], { type: 'text/csv' });
+
+    const blob = new Blob([csvContent], { type: "text/csv" });
     const href = URL.createObjectURL(blob);
-  
-    const link = document.createElement('a');
+
+    const link = document.createElement("a");
     link.href = href;
-    link.download = 'recent-coupons.csv';
+    link.download = "recent-coupons.csv";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
-  
 
   // Render growth indicator
   const renderGrowthIndicator = (rate: number) => {
@@ -236,56 +200,80 @@ export default function OverviewTab() {
     );
   };
 
+  // Loading component
+  const LoadingSpinner = () => (
+    <div className="flex flex-col items-center justify-center p-8 h-64">
+      <Loader2 className="h-12 w-12 text-primary animate-spin mb-4" />
+      <p className="text-lg text-muted-foreground">Loading dashboard data...</p>
+    </div>
+  );
+
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
+
   return (
     <div className="space-y-6">
       {/* Key metrics cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Venues</CardTitle>
-            <Building className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-lg font-medium">Total Venues</CardTitle>
+            <Building className="h-5 w-5 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatNumber(platformOverview.totalVenues)}</div>
+            <div className="text-3xl font-bold">
+              {formatNumber(platformOverview.totalVenues)}
+            </div>
             <div className="text-xs text-muted-foreground">
               {renderGrowthIndicator(platformOverview.venueGrowthRate)}
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Users</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-lg font-medium">Active Users</CardTitle>
+            <Users className="h-5 w-5 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatNumber(platformOverview.activeUsers)}</div>
+            <div className="text-3xl font-bold">
+              {formatNumber(platformOverview.activeUsers)}
+            </div>
             <div className="text-xs text-muted-foreground">
               {renderGrowthIndicator(platformOverview.userGrowthRate)}
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Monthly Revenue</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-lg font-medium">
+              Monthly Revenue
+            </CardTitle>
+            <DollarSign className="h-5 w-5 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(platformOverview.monthlyRevenue)}</div>
+            <div className="text-3xl font-bold">
+              {formatCurrency(platformOverview.monthlyRevenue)}
+            </div>
             <div className="text-xs text-muted-foreground">
               {renderGrowthIndicator(platformOverview.revenueGrowthRate)}
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Subscriptions</CardTitle>
-            <MessageSquare className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-lg font-medium">
+              Active Subscriptions
+            </CardTitle>
+            <MessageSquare className="h-5 w-5 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatNumber(platformOverview.activeSubscriptions)}</div>
+            <div className="text-3xl font-bold">
+              {formatNumber(platformOverview.activeSubscriptions)}
+            </div>
             <div className="text-xs text-muted-foreground">
               {renderGrowthIndicator(platformOverview.subscriptionGrowthRate)}
             </div>
@@ -296,37 +284,66 @@ export default function OverviewTab() {
       {/* Tabs for Overview, Analytics, Reports */}
       <Tabs defaultValue="overview" className="w-full">
         <TabsList>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="analytics">Analytics</TabsTrigger>
-          <TabsTrigger value="reports">Reports</TabsTrigger>
+          <TabsTrigger value="overview" className="text-base">Overview</TabsTrigger>
+          <TabsTrigger value="analytics" className="text-base">Analytics</TabsTrigger>
+          <TabsTrigger value="reports" className="text-base">Reports</TabsTrigger>
         </TabsList>
-        
+
         <TabsContent value="overview" className="space-y-4 mt-4">
           <div className="grid gap-4 md:grid-cols-2">
             {/* Recent Signups */}
             <Card>
               <CardHeader>
-                <CardTitle>Recent Signups</CardTitle>
+                <CardTitle className="text-xl">Recent Signups</CardTitle>
                 <p className="text-sm text-muted-foreground">
-                  There were 12 new venue signups in the last 7 days
+                  There were {recentSignups.length} new venue signups in the last 7 days
                 </p>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {recentSignups.map((signup) => (
-                    <div key={signup.id} className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-purple-100 text-purple-700">
-                          {signup.initials}
+                <div className="max-h-96 overflow-y-auto pr-2 space-y-4">
+                  {recentSignups.length > 0 ? (
+                    recentSignups.map((signup) => (
+                      <div
+                        key={signup.name}
+                        className="flex items-center justify-between"
+                      >
+                        <div className="flex items-center space-x-3">
+                          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-purple-100 text-purple-700 font-medium uppercase">
+                            {signup.logo ? (
+                              <img
+                                src={signup.logo}
+                                alt="Profile"
+                                className="h-9 w-9 rounded-full object-cover"
+                              />
+                            ) : (
+                              <span className="font-bold">
+                                {signup.name
+                                  .split(" ")
+                                  .map((word) => word[0])
+                                  .join("")
+                                  .slice(0, 2)}
+                              </span>
+                            )}
+                          </div>
+
+                          <div>
+                            <p className="font-medium">{signup.name}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {signup.city}
+                            </p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="font-medium">{signup.name}</p>
-                          <p className="text-sm text-muted-foreground">{signup.location}</p>
+
+                        <div className="text-sm text-muted-foreground">
+                          {signup.time &&
+                            formatDistanceToNow(new Date(signup.time))}{" "}
+                          ago
                         </div>
                       </div>
-                      <div className="text-sm text-muted-foreground">{signup.timeAgo}</div>
-                    </div>
-                  ))}
+                    ))
+                  ) : (
+                    <p className="text-center text-muted-foreground py-4">No recent signups</p>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -334,35 +351,58 @@ export default function OverviewTab() {
             {/* Subscription Distribution */}
             <Card>
               <CardHeader>
-                <CardTitle>Subscription Distribution</CardTitle>
+                <CardTitle className="text-xl">Subscription Distribution</CardTitle>
                 <p className="text-sm text-muted-foreground">
                   Breakdown of active subscription plans
                 </p>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {subscriptionPlans.map((plan) => (
-                    <div key={plan.name} className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-2">
-                          <div className="h-3 w-3 rounded-full" style={{ backgroundColor: plan.color }}></div>
-                          <span>{plan.name}</span>
+                  {subscriptionPlans.length > 0 ? (
+                    subscriptionPlans.map((plan) => {
+                      let colorClass = "";
+                      if (plan.plan === "starter" || plan.plan === "Starter") {
+                        colorClass = "bg-purple-500";
+                        plan.plan = "Starter";
+                      } else if (
+                        plan.plan === "professional" ||
+                        plan.plan === "Professional"
+                      ) {
+                        colorClass = "bg-pink-500";
+                        plan.plan = "Professional";
+                      } else if (
+                        plan.plan === "enterprise" ||
+                        plan.plan === "Enterprise"
+                      ) {
+                        colorClass = "bg-blue-500";
+                        plan.plan = "Enterprise";
+                      }
+
+                      return (
+                        <div key={plan.plan} className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <div
+                                className={`h-3 w-3 rounded-full ${colorClass}`}
+                              ></div>
+                              <span className="text-base">{plan.plan}</span>
+                            </div>
+                            <span className="font-medium text-base">
+                              {plan.count} ({Math.round(plan.percentage)}%)
+                            </span>
+                          </div>
+                          <div className="h-2 w-full rounded-full bg-muted">
+                            <div
+                              className={`h-2 rounded-full ${colorClass}`}
+                              style={{ width: `${plan.percentage}%` }}
+                            ></div>
+                          </div>
                         </div>
-                        <span className="font-medium">
-                          {plan.count} ({plan.percentage}%)
-                        </span>
-                      </div>
-                      <div className="h-2 w-full rounded-full bg-gray-100">
-                        <div 
-                          className="h-2 rounded-full" 
-                          style={{ 
-                            width: `${plan.percentage}%`,
-                            backgroundColor: plan.color 
-                          }}
-                        ></div>
-                      </div>
-                    </div>
-                  ))}
+                      );
+                    })
+                  ) : (
+                    <p className="text-center text-muted-foreground py-4">No subscription data available</p>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -370,135 +410,106 @@ export default function OverviewTab() {
             {/* Recent Coupons */}
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle>Recent Coupons</CardTitle>
-                <Button variant="ghost" size="sm"  onClick={handleExport}>
+                <CardTitle className="text-xl">Recent Coupons</CardTitle>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={handleExport}
+                  disabled={recentCoupons.length === 0}
+                >
                   <Download className="h-4 w-4 mr-1" />
                   Export
                 </Button>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
-                  {recentCoupons.map((coupon) => (
-                    <div key={coupon.code} className="flex items-center justify-between border-b pb-2">
-                      <div>
-                        <p className="font-medium">{coupon.code}</p>
-                        <p className="text-sm text-muted-foreground">{coupon.discount}</p>
+                <div className="max-h-96 overflow-y-auto pr-2 space-y-3">
+                  {recentCoupons.length > 0 ? (
+                    recentCoupons.map((coupon) => (
+                      <div
+                        key={coupon.token}
+                        className="flex text-xl font-bold items-center justify-between border-b pb-2"
+                      >
+                        <div>
+                          <p className="font-medium">{coupon.token}</p>
+                        </div>
+                        <div className="text-sm text-muted-foreground text-right flex items-center gap-1">
+                          <span>{coupon.description}</span>
+                          <span className="mx-1 text-muted-foreground">•</span>
+                          <span className="text-foreground">
+                            {coupon.redemptions} uses
+                          </span>
+                        </div>
                       </div>
-                      <div className="text-right">
-                        <p className="text-sm">{coupon.usageCount} uses</p>
-                      </div>
-                    </div>
-                  ))}
+                    ))
+                  ) : (
+                    <p className="text-center text-muted-foreground py-4">No coupons available</p>
+                  )}
                 </div>
               </CardContent>
             </Card>
-            
+
             {/* Recent Activity */}
             <Card>
               <CardHeader>
-                <CardTitle>Recent Activity</CardTitle>
+                <CardTitle className="text-xl">Recent Activity</CardTitle>
                 <p className="text-sm text-muted-foreground">
                   Latest system activity logs
                 </p>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {recentActivity.map((activity, index) => (
-                    <div key={index} className="flex items-center">
-                      <div className="mr-4 flex h-2 w-2 rounded-full bg-purple-500"></div>
-                      <div className="flex-1">
-                        <p className="text-sm">{activity.event}</p>
-                        <p className="text-xs text-muted-foreground flex items-center">
-                          <Clock className="h-3 w-3 mr-1" /> {activity.timeAgo}
-                        </p>
+                <div className="max-h-96 overflow-y-auto pr-2 space-y-4">
+                  {recentActivity.length > 0 ? (
+                    recentActivity.map((activity, index) => {
+                      const rawTime = activity.time;
+                      const date = new Date(`1970-01-01T${rawTime}Z`);
+                      const formattedTime = date.toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        hour12: true,
+                      });
+
+                      return (
+                        <div key={index} className="flex items-start gap-3">
+                        {/* Dot */}
+                        <div className="mt-1 h-2 w-2 rounded-full bg-purple-500"></div>
+                      
+                        {/* Text Content */}
+                        <div className="flex-1">
+                          <p className="text-sm">{activity.log}</p>
+                          <div className="text-xs text-muted-foreground flex justify-end">
+                            <span>{formattedTime}</span>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                      
+                      );
+                    })
+                  ) : (
+                    <p className="text-center text-muted-foreground py-4">No recent activity</p>
+                  )}
                 </div>
               </CardContent>
             </Card>
           </div>
-
-          {/* Charts */}
-          <div className="grid gap-4 md:grid-cols-2">
-            {/* Revenue Growth Chart */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Revenue Growth</CardTitle>
-              </CardHeader>
-              <CardContent className="h-[300px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={revenueData}>
-                    <defs>
-                      <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8}/>
-                        <stop offset="95%" stopColor="#8884d8" stopOpacity={0.1}/>
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
-                    <XAxis dataKey="month" />
-                    <YAxis tickFormatter={(value) => `$${value/1000}k`} />
-                    <Tooltip formatter={(value) => [`$${value}`, 'Revenue']} />
-                    <Area 
-                      type="monotone" 
-                      dataKey="revenue" 
-                      stroke="#8884d8" 
-                      fillOpacity={1} 
-                      fill="url(#colorRevenue)" 
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-
-            {/* User Growth Chart */}
-            <Card>
-              <CardHeader>
-                <CardTitle>User Growth</CardTitle>
-              </CardHeader>
-              <CardContent className="h-[300px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={userGrowthData}>
-                    <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
-                    <XAxis dataKey="month" />
-                    <YAxis />
-                    <Tooltip formatter={(value) => [`${value} users`, 'Users']} />
-                    <Line 
-                      type="monotone" 
-                      dataKey="users" 
-                      stroke="#8884d8"
-                      strokeWidth={2}
-                      dot={{ fill: '#8884d8', r: 4 }}
-                      activeDot={{ r: 6 }}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-          </div>
         </TabsContent>
-        
+
         <TabsContent value="analytics">
-          <div className="p-8 text-center">
-            <h3 className="text-xl font-medium mb-2">Analytics Dashboard</h3>
-            <p className="text-muted-foreground">More detailed analytics will be available here soon.</p>
-          </div>
+          {isLoading ? (
+            <LoadingSpinner />
+          ) : (
+            <AnalyticsTab analyticsData={analyticsData} />
+          )}
         </TabsContent>
-        
+
         <TabsContent value="reports">
           <div className="p-8 text-center">
-            <h3 className="text-xl font-medium mb-2">Reports Dashboard</h3>
-            <p className="text-muted-foreground">Custom reports and exports will be available here soon.</p>
+            <h3 className="text-2xl font-medium mb-2">Reports Dashboard</h3>
+            <p className="text-muted-foreground">
+              Custom reports and exports will be available here soon.
+            </p>
           </div>
         </TabsContent>
       </Tabs>
     </div>
   );
 }
-
-
-
-
-
-
-

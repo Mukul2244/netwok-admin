@@ -4,7 +4,7 @@ import getCookie from "@/lib/getCookie";
 const api = axios.create({
   baseURL: "https://api.netwok.app",
   headers: {
-    "Content-Type": "multipart/form-data",
+    "Content-Type": "application/json",
   },
 });
 
@@ -30,7 +30,7 @@ api.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        const newAccessToken = await api.post('/api/refresh',{
+        const newAccessToken = await api.post('/token/refresh',{
           refreshToken: await getCookie("refreshToken")
         })
         axios.defaults.headers.common["Authorization"] = `Bearer ${newAccessToken}`;

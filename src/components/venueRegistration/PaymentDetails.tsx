@@ -24,7 +24,7 @@ interface PaymentDetailsProps {
 }
 
 export default function PaymentDetails({
-  // data,
+  data,
   updateData,
   onSubmit,
   // onPrev,
@@ -32,15 +32,20 @@ export default function PaymentDetails({
   const form = useForm<PaymentDetailsForm>({
     resolver: zodResolver(paymentDetailsSchema),
     defaultValues: {
-      cardNumber: "",
-      expiryDate: "",
-      cvv: "",
+      city: data?.city || "",
+      country:data?.country || "",
+      cardNumber:data?.cardNumber || "",
+      expiryDate:data?.expiryDate || "",
+      cvv: data?.cvv || "",
+      cardHolderName: data?.cardHolderName || "",
+      billingAddress:data?.billingAddress || "",
+      zipCode: data?.zipCode || "",
     },
   });
 
   const handleSubmit = (values: PaymentDetailsForm) => {
-    updateData(values); // Update parent state
-    onSubmit(); // Move to next step or finish
+    updateData(values); 
+    onSubmit(); 
   };
 
   return (

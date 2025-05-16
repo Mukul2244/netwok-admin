@@ -2,38 +2,24 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { useParams} from "next/navigation"
+import { use } from 'react';
 import {
   ArrowLeft,
   Clock,
   Download,
 } from "lucide-react"
-
+import api from "@/lib/axios"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
-interface VisitorByDay {
-  [key: string]: string | number;  // Add index signature
-  day: string;
-  count: number;
-}
 
-interface VisitorByHour {
-  [key: string]: string | number;  // Add index signature
-  hour: string;
-  count: number;
-}
 
 interface ScanHistory {
-  [key: string]: string | number;  // Add index signature
   date: string;
   count: number;
 }
-
-
-
 
 interface PopularInterest {
   interest: string;
@@ -41,119 +27,54 @@ interface PopularInterest {
 }
 
 interface RecentScan {
-  id: number;
+  id?: number;
   user: string;
   time: string;
   interests: string[];
 }
 
 interface Venue {
-  id: number;
-  name: string;
-  type: string;
-  subscription: string;
-  status: string;
-  lastQrScanned: string;
-  totalScans: number;
-  activeVisitors: number;
-  totalVisitors: number;
-  averageStay: string;
-  visitorsByDay: VisitorByDay[];
-  visitorsByHour: VisitorByHour[];
-  scanHistory: ScanHistory[];
-  popularInterests: PopularInterest[];
-  recentScans: RecentScan[];
+  id?: number;
+  venue_name?: string;
+  total_qr_scans: number;
+  active_visitors: number;
+  total_visitors: number;
+  average_stay: string;
+  visitors_by_day: Record<string, number>;
+  visitors_by_hour: Record<string, number>;
+  qr_scan_history: ScanHistory[];
+  popular_interests: PopularInterest[];
+  recent_qr_scans: RecentScan[];
 }
 
-export default function VenueUsagePage() {
-  const params = useParams()
- 
+export default function VenueUsagePage({ params }: { params: Promise<{ id: string }> }) {
+  const { id: venueId } = use(params);
   const [venue, setVenue] = useState<Venue | null>(null);
   const [loading, setLoading] = useState(true)
-  const [timeRange, setTimeRange] = useState("week")
+  const [timeRange, setTimeRange] = useState("7d")
 
   useEffect(() => {
     // Simulating API fetch
     const fetchVenueData = async () => {
       try {
-        // In a real implementation, this would be an API call
-        // const response = await fetch(`/api/pubs/${params.id}`);
-        // const data = await response.json();
+        const response = await api.get(`/su/venue/${venueId}/usage?period=${timeRange}`);
+        const data = response.data;
         
-        // For now, we'll use a timeout to simulate network request
-        setTimeout(() => {
-          const mockVenue = params.id === "1" ? {
-            id: 1,
-            name: "The Golden Pub",
-            type: "Pub & Restaurant",
-            subscription: "Professional",
-            status: "active",
-            lastQrScanned: "2023-06-18T14:32:00Z",
-            totalScans: 1245,
-            activeVisitors: 24,
-            totalVisitors: 3567,
-            averageStay: "1h 45m",
-            visitorsByDay: [
-              { day: "Monday", count: 120 },
-              { day: "Tuesday", count: 145 },
-              { day: "Wednesday", count: 190 },
-              { day: "Thursday", count: 240 },
-              { day: "Friday", count: 380 },
-              { day: "Saturday", count: 420 },
-              { day: "Sunday", count: 280 },
-            ],
-            visitorsByHour: [
-              { hour: "12pm", count: 45 },
-              { hour: "1pm", count: 60 },
-              { hour: "2pm", count: 75 },
-              { hour: "3pm", count: 65 },
-              { hour: "4pm", count: 55 },
-              { hour: "5pm", count: 85 },
-              { hour: "6pm", count: 120 },
-              { hour: "7pm", count: 180 },
-              { hour: "8pm", count: 210 },
-              { hour: "9pm", count: 190 },
-              { hour: "10pm", count: 150 },
-              { hour: "11pm", count: 90 },
-            ],
-            scanHistory: [
-              { date: "2023-06-18", count: 85 },
-              { date: "2023-06-17", count: 92 },
-              { date: "2023-06-16", count: 78 },
-              { date: "2023-06-15", count: 65 },
-              { date: "2023-06-14", count: 70 },
-              { date: "2023-06-13", count: 62 },
-              { date: "2023-06-12", count: 58 },
-            ],
-            popularInterests: [
-              { interest: "Beer", percentage: 42 },
-              { interest: "Music", percentage: 38 },
-              { interest: "Sports", percentage: 35 },
-              { interest: "Friendship", percentage: 29 },
-              { interest: "Flirting", percentage: 24 },
-            ],
-            recentScans: [
-              { id: 1, user: "User #12345", time: "2023-06-18T14:32:00Z", interests: ["Beer", "Music"] },
-              { id: 2, user: "User #67890", time: "2023-06-18T14:28:00Z", interests: ["Sports", "Beer"] },
-              { id: 3, user: "User #54321", time: "2023-06-18T14:15:00Z", interests: ["Friendship", "Music"] },
-              { id: 4, user: "User #98765", time: "2023-06-18T14:05:00Z", interests: ["Flirting", "Beer"] },
-              { id: 5, user: "User #24680", time: "2023-06-18T13:58:00Z", interests: ["Sports", "Friendship"] },
-            ],
-          } : null
-
-          setVenue(mockVenue)
-          setLoading(false)
-        }, 1000)
+        setVenue(data );
+        setLoading(false);
+        
       } catch (error) {
-        console.error("Error fetching venue data:", error)
-        setLoading(false)
+        console.error("Error fetching venue data:", error);
+        // Fallback to example data if API fails
+       
+        setLoading(false);
       }
     }
 
-    if (params.id) {
-      fetchVenueData()
+    if (venueId) {
+      fetchVenueData();
     }
-  }, [params.id])
+  }, [venueId, timeRange]);
 
   if (loading) {
     return (
@@ -163,7 +84,7 @@ export default function VenueUsagePage() {
           <p className="mt-4">Loading venue usage data...</p>
         </div>
       </div>
-    )
+    );
   }
 
   if (!venue) {
@@ -177,51 +98,8 @@ export default function VenueUsagePage() {
           </Button>
         </div>
       </div>
-    )
+    );
   }
-
-  // Function to generate placeholder data for when API data isn't available
-  const getPlaceholderData = (type:string) => {
-    switch (type) {
-      case 'visitorsByDay':
-        return [
-          { day: 'Monday', count: '--' },
-          { day: 'Tuesday', count: '--' },
-          { day: 'Wednesday', count: '--' },
-          { day: 'Thursday', count: '--' },
-          { day: 'Friday', count: '--' },
-          { day: 'Saturday', count: '--' },
-          { day: 'Sunday', count: '--' },
-        ];
-      case 'visitorsByHour':
-        return Array.from({ length: 12 }, (_, i) => ({
-          hour: `${i + 12 > 12 ? i : i + 12}${i + 12 > 11 ? 'pm' : 'am'}`,
-          count: '--'
-        }));
-      case 'scanHistory':
-        return Array.from({ length: 7 }, (_, i) => ({
-          date: `2023-06-${18 - i}`,
-          count: '--'
-        }));
-      case 'popularInterests':
-        return [
-          { interest: 'Interest 1', percentage: '--' },
-          { interest: 'Interest 2', percentage: '--' },
-          { interest: 'Interest 3', percentage: '--' },
-          { interest: 'Interest 4', percentage: '--' },
-          { interest: 'Interest 5', percentage: '--' },
-        ];
-      case 'recentScans':
-        return Array.from({ length: 5 }, (_, i) => ({
-          id: i + 1,
-          user: 'User #-----',
-          time: 'Waiting for data...',
-          interests: ['--', '--']
-        }));
-      default:
-        return [];
-    }
-  };
 
   const handleDownload = () => {
     if (!venue) return;
@@ -229,33 +107,36 @@ export default function VenueUsagePage() {
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(venue, null, 2));
     const downloadAnchorNode = document.createElement('a');
     downloadAnchorNode.setAttribute("href", dataStr);
-    downloadAnchorNode.setAttribute("download", `${venue.name}_usage_data.json`);
+    downloadAnchorNode.setAttribute("download", `${venue.venue_name || 'venue'}_usage_data.json`);
     document.body.appendChild(downloadAnchorNode); 
     downloadAnchorNode.click();
     downloadAnchorNode.remove();
   };
   
-
-  // Use API data if available, otherwise use placeholders
-  const visitorsByDay = venue.visitorsByDay || getPlaceholderData('visitorsByDay');
-  const visitorsByHour = venue.visitorsByHour || getPlaceholderData('visitorsByHour');
-  const scanHistory = venue.scanHistory || getPlaceholderData('scanHistory');
-  const popularInterests = venue.popularInterests || getPlaceholderData('popularInterests');
-  const recentScans = venue.recentScans || getPlaceholderData('recentScans');
+  // Convert visitors_by_day object to array for rendering
+  const visitorsByDayArray = Object.entries(venue.visitors_by_day || {}).map(
+    ([day, count]) => ({ day, count:Number(count) })
+  );
+  
+  // Convert visitors_by_hour object to array for rendering
+  const visitorsByHourArray = Object.entries(venue.visitors_by_hour || {}).map(
+    ([hour, count]) => ({ hour,count:Number(count) })
+  );
 
   
-
-  const getMaxValue = (data: { [key: string]: number | string }[], key: string): number => {
-    if (!data || data[0][key] === '--') return 100;
-  
-    // Ensure the value is a number before trying to get the maximum
-    return Math.max(...data.map((d) => {
-      const value = d[key];
-      // Only consider numeric values (ignore if value is a string like '--')
-      return typeof value === 'number' ? value : -Infinity;
-    }));
+ 
+  const formatHour = (hourStr: string) => {
+    const hour = parseInt(hourStr);
+    const suffix = hour >= 12 ? 'PM' : 'AM';
+    const hour12 = hour % 12 === 0 ? 12 : hour % 12;
+    return `${hour12} ${suffix}`;
   };
-  
+  const timeRangeLabels: Record<string, string> = {
+    "1d": "Last 24 Hours",
+    "7d": "Last 7 Days",
+    "30d": "Last 30 Days",
+    "12m": "Last 12 Months",
+  };
   
 
   return (
@@ -272,27 +153,29 @@ export default function VenueUsagePage() {
               </Button>
               <div>
                 <h1 className="text-xl font-semibold">Usage Analytics</h1>
-                <p className="text-sm text-muted-foreground">{venue.name}</p>
+                <p className="text-sm text-muted-foreground">{venue.venue_name}</p>
               </div>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Select value={timeRange} onValueChange={setTimeRange}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Select time range" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="day">Last 24 Hours</SelectItem>
-                <SelectItem value="week">Last 7 Days</SelectItem>
-                <SelectItem value="month">Last 30 Days</SelectItem>
-                <SelectItem value="year">Last 12 Months</SelectItem>
-              </SelectContent>
-            </Select>
-            <Button onClick={handleDownload}>
-  <Download className="mr-2 h-4 w-4" />
-  Export
-</Button>
+          <Select value={timeRange} onValueChange={setTimeRange}>
+  <SelectTrigger className="w-[180px]">
+    <SelectValue placeholder="Select time range">
+      {timeRangeLabels[timeRange] || "Select time range"}
+    </SelectValue>
+  </SelectTrigger>
+  <SelectContent>
+    <SelectItem value="1d">Last 24 Hours</SelectItem>
+    <SelectItem value="7d">Last 7 Days</SelectItem>
+    <SelectItem value="30d">Last 30 Days</SelectItem>
+    <SelectItem value="12m">Last 12 Months</SelectItem>
+  </SelectContent>
+</Select>
 
+            <Button onClick={handleDownload}>
+              <Download className="mr-2 h-4 w-4 text-black dark:text-white" />
+              <span className="text-black dark:text-white">Export</span>
+            </Button>
           </div>
         </header>
         
@@ -301,37 +184,37 @@ export default function VenueUsagePage() {
           <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
             <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium">Total QR Scans</CardTitle>
+                <CardTitle className="text-base font-bold">Total QR Scans</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{venue.totalScans ? venue.totalScans.toLocaleString() : '--'}</div>
-                <p className="text-xs text-muted-foreground">+12% from previous period</p>
+                <div className="text-2xl font-bold">{venue.total_qr_scans ? venue.total_qr_scans.toLocaleString() : '--'}</div>
+                <p className="text-xs text-muted-foreground">Total number of QR code scans</p>
               </CardContent>
             </Card>
             <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium">Active Visitors</CardTitle>
+                <CardTitle className="text-base font-bold">Active Visitors</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{venue.activeVisitors || '--'}</div>
+                <div className="text-2xl font-bold">{venue.active_visitors || '--'}</div>
                 <p className="text-xs text-muted-foreground">Currently at venue</p>
               </CardContent>
             </Card>
             <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium">Total Visitors</CardTitle>
+                <CardTitle className="text-base font-bold">Total Visitors</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{venue.totalVisitors ? venue.totalVisitors.toLocaleString() : '--'}</div>
+                <div className="text-2xl font-bold">{venue.total_visitors ? venue.total_visitors.toLocaleString() : '--'}</div>
                 <p className="text-xs text-muted-foreground">All-time unique visitors</p>
               </CardContent>
             </Card>
             <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium">Average Stay</CardTitle>
+                <CardTitle className="text-base font-bold">Average Stay</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{venue.averageStay || '--'}</div>
+                <div className="text-2xl font-bold">{venue.average_stay || '--'}</div>
                 <p className="text-xs text-muted-foreground">Time spent at venue</p>
               </CardContent>
             </Card>
@@ -341,70 +224,92 @@ export default function VenueUsagePage() {
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <Card>
               <CardHeader>
-                <CardTitle>Visitors by Day</CardTitle>
+                <CardTitle className="text-2xl font-bold">Visitors by Day</CardTitle>
                 <CardDescription>Number of visitors per day of the week</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="h-[300px]">
-                  <div className="space-y-4">
-                    {visitorsByDay.map((item: { day: string; count: number | string }) => (
-                      <div key={item.day} className="flex items-center">
-                        <div className="w-24 text-sm">{item.day}</div>
-                        <div className="flex-1">
-                          <div className="h-4 rounded-full bg-primary/20 overflow-hidden">
-                            {item.count !== '--' && (
+                  {visitorsByDayArray.length > 0 ? (
+                    <div className="space-y-4">
+                      {/* Map days in a specific order to ensure consistency */}
+                      {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+                        .map(day => {
+                          const dayData = visitorsByDayArray.find(d => d.day === day);
+                          return {
+                            day,
+                            count: dayData ? dayData.count : 0
+                          };
+                        })
+                        .map(item => (
+                          <div key={item.day} className="flex items-center">
+                            <div className="w-24 text-sm">{item.day}</div>
+                            <div className="flex-1">
+                              <div className="h-4 rounded-full bg-primary/20 overflow-hidden">
+                              <div className="w-full h-4 bg-gray-200 rounded overflow-hidden">
                               <div
-                                className="h-full bg-gradient-to-r from-purple-600 to-pink-600"
-                                style={{
-                                    width: `${(typeof item.count === 'number' ? (item.count / getMaxValue(visitorsByDay, 'count')) * 100 : 0)}%`,
+        className="h-full bg-gradient-to-r from-purple-600 to-pink-600 rounded"
+        style={{
+          width: `${(item.count*5 || 0)}%`,
+        }}
+      ></div>
+</div>
 
-                                }}
-                              ></div>
-                            )}
-                            {item.count === '--' && (
-                              <div className="h-full bg-gray-200 animate-pulse" style={{ width: '30%' }}></div>
-                            )}
+                              </div>
+                            </div>
+                            <div className="w-16 text-right text-sm font-medium">
+                              {item.count || '0'}
+                            </div>
                           </div>
-                        </div>
-                        <div className="w-16 text-right text-sm font-medium">{item.count}</div>
-                      </div>
-                    ))}
-                  </div>
+                        ))}
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center h-full">
+                      <p className="text-muted-foreground">No visitor data available</p>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader>
-                <CardTitle>Visitors by Hour</CardTitle>
+                <CardTitle className="text-2xl font-bold">Visitors by Hour</CardTitle>
                 <CardDescription>Number of visitors per hour</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="h-[300px]">
-                  <div className="space-y-4">
-                    {visitorsByHour.map((item: { hour: string; count: number | string }) => (
-                      <div key={item.hour} className="flex items-center">
-                        <div className="w-16 text-sm">{item.hour}</div>
-                        <div className="flex-1">
-                          <div className="h-4 rounded-full bg-primary/20 overflow-hidden">
-                            {item.count !== '--' && (
-                              <div
-                                className="h-full bg-gradient-to-r from-purple-600 to-pink-600"
-                                style={{
-                                    width: `${(typeof item.count === 'number' ? (item.count / getMaxValue(visitorsByHour, 'count')) * 100 : 0)}%`,
+                  {visitorsByHourArray.length > 0 ? (
+                    <div className="space-y-4">
+                      {/* Sort hours chronologically */}
+                      {visitorsByHourArray
+                        .sort((a, b) => {
+                          return a.hour.localeCompare(b.hour);
+                        })
+                        .map(item => (
+                          <div key={item.hour} className="flex items-center">
+                           <div className="w-16 text-sm">{formatHour(item.hour)}</div>
 
-                                }}
-                              ></div>
-                            )}
-                            {item.count === '--' && (
-                              <div className="h-full bg-gray-200 animate-pulse" style={{ width: '50%' }}></div>
-                            )}
+                            <div className="flex-1">
+                              <div className="h-4 rounded-full bg-primary/20 overflow-hidden">
+                                <div
+                                  className="h-full bg-gradient-to-r from-purple-600 to-pink-600"
+                                  style={{
+                                    width: `${((item.count*5 || 0))}%`,
+                                  }}
+                                ></div>
+                              </div>
+                            </div>
+                            <div className="w-16 text-right text-sm font-medium">
+                              {item.count || '0'}
+                            </div>
                           </div>
-                        </div>
-                        <div className="w-16 text-right text-sm font-medium">{item.count}</div>
-                      </div>
-                    ))}
-                  </div>
+                        ))}
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center h-full">
+                      <p className="text-muted-foreground">No hourly visitor data available</p>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -414,72 +319,73 @@ export default function VenueUsagePage() {
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <Card>
               <CardHeader>
-                <CardTitle>Popular Interests</CardTitle>
+                <CardTitle className="text-2xl font-bold">Popular Interests</CardTitle>
                 <CardDescription>What your visitors are interested in</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {popularInterests.map((item: { interest: string; percentage: number | string })  => (
-                    <div key={item.interest} className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span className="text-xl">
-                          {item.interest === "Beer"
-                            ? "🍺"
-                            : item.interest === "Music"
-                              ? "🎵"
-                              : item.interest === "Sports"
-                                ? "⚽"
-                                : item.interest === "Friendship"
-                                  ? "🤝"
-                                  : item.interest === "Flirting"
-                                    ? "😏"
-                                    : item.interest === "Beach"
-                                      ? "🏖️"
-                                      : item.interest === "Cocktails"
-                                        ? "🍹"
-                                        : item.interest === "Dancing"
-                                          ? "💃"
-                                          : "❓"}
+                {venue.popular_interests && venue.popular_interests.length > 0 ? (
+                  <div className="space-y-4">
+                    {venue.popular_interests.map((item, index) => (
+                      <div key={index} className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xl">
+                            {/* Use generic emoji based on index if no specific match */}
+                            {getInterestEmoji(item.interest)}
+                          </span>
+                          <span>{item.interest}</span>
+                        </div>
+                        <span className="text-muted-foreground">
+                          {item.percentage ? `${Math.round(item.percentage)}%` : '0%'}
                         </span>
-                        <span>{item.interest}</span>
                       </div>
-                      <span className="text-muted-foreground">{item.percentage}%</span>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center h-64">
+                    <p className="text-muted-foreground">No interest data available</p>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader>
-                <CardTitle>Recent QR Scans</CardTitle>
+                <CardTitle className="text-2xl font-bold">Recent QR Scans</CardTitle>
                 <CardDescription>Latest visitors who scanned your QR code</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                {recentScans.map((scan: { id: number; user: string; time: string; interests: string[] }) => (
- 
-                    <div
-                      key={scan.id}
-                      className="flex items-start justify-between border-b pb-3 last:border-0 last:pb-0"
-                    >
-                      <div>
-                        <div className="font-medium">{scan.user}</div>
-                        <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                          <Clock className="h-3 w-3" />
-                          <span>{scan.time === 'Waiting for data...' ? scan.time : new Date(scan.time).toLocaleString()}</span>
+                {venue.recent_qr_scans && venue.recent_qr_scans.length > 0 ? (
+                  <div className="space-y-4">
+                    {venue.recent_qr_scans.map((scan, index) => (
+                      <div
+                        key={index}
+                        className="flex items-start justify-between border-b pb-3 last:border-0 last:pb-0"
+                      >
+                        <div>
+                          <div className="font-medium">{scan.user}</div>
+                          <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                            <Clock className="h-3 w-3" />
+                            <span>{new Date(scan.time).toLocaleString()}</span>
+                          </div>
+                        </div>
+                        <div className="flex flex-wrap gap-1 justify-end">
+                          {Array.isArray(scan.interests) && scan.interests.length > 0 ? 
+                            scan.interests.map((interest, i) => (
+                              <Badge key={i} variant="outline" className="text-xs">
+                                {interest}
+                              </Badge>
+                            )) : 
+                            <Badge variant="outline" className="text-xs">No interests</Badge>
+                          }
                         </div>
                       </div>
-                      <div className="flex flex-wrap gap-1 justify-end">
-                      {scan.interests.map((interest: string) => (
-                          <Badge key={interest} variant="outline" className="text-xs">
-                            {interest}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center h-64">
+                    <p className="text-muted-foreground">No recent scan data available</p>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
@@ -487,31 +393,35 @@ export default function VenueUsagePage() {
           {/* QR Code Scan History */}
           <Card>
             <CardHeader>
-              <CardTitle>QR Code Scan History</CardTitle>
+              <CardTitle className="text-2xl font-bold">QR Code Scan History</CardTitle>
               <CardDescription>Number of scans per day</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="h-[300px]">
                 <div className="grid grid-cols-7 gap-2 h-full">
-                {scanHistory.map((item: { date: string; count: number | string }) => (
-
-                    <div key={item.date} className="flex flex-col items-center justify-end">
-                      {item.count !== '--' ? (
-                        <div
-                          className="w-full bg-gradient-to-t from-purple-600 to-pink-600 rounded-t-md"
-                          style={{
-                            height: `${(typeof item.count === 'number' ? (item.count / getMaxValue(scanHistory, 'count')) * 100 : 0)}%`,
-                          }}
-                        ></div>
-                      ) : (
-                        <div className="w-full bg-gray-200 animate-pulse rounded-t-md" style={{ height: '40%' }}></div>
-                      )}
-                      <div className="mt-2 text-xs text-center">
-                        <div>{new Date(item.date).toLocaleDateString(undefined, { weekday: "short" })}</div>
-                        <div className="font-medium">{item.count}</div>
-                      </div>
+                  {venue.qr_scan_history && venue.qr_scan_history.length > 0 ? (
+                    venue.qr_scan_history
+                      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+                      .map((item, index) => (
+                        <div key={index} className="flex flex-col items-center justify-end">
+                          <div
+                            className="w-full bg-gradient-to-t from-purple-600 to-pink-600 rounded-t-md"
+                            style={{
+                              height: `${(item.count*5)}%`,
+                              minHeight: item.count > 0 ? '10%' : '0%'
+                            }}
+                          ></div>
+                          <div className="mt-2 text-xs text-center">
+                            <div>{formatDate(item.date)}</div>
+                            <div className="font-medium">{item.count}</div>
+                          </div>
+                        </div>
+                      ))
+                  ) : (
+                    <div className="col-span-7 flex items-center justify-center">
+                      <p className="text-muted-foreground">No scan history data available</p>
                     </div>
-                  ))}
+                  )}
                 </div>
               </div>
             </CardContent>
@@ -519,5 +429,35 @@ export default function VenueUsagePage() {
         </main>
       </div>
     </div>
-  )
+  );
+}
+
+// Helper function to get emoji for interests
+function getInterestEmoji(interest: string): string {
+  const interestEmojis: Record<string, string> = {
+    "Beer": "🍺",
+    "Music": "🎵",
+    "Sports": "⚽",
+    "Friendship": "🤝",
+    "Flirting": "😏",
+    "Beach": "🏖️",
+    "Cocktails": "🍹",
+    "Dancing": "💃",
+    "Books": "📚",
+    "Art": "🎨",
+    "Food": "🍽️",
+    "Travel": "✈️",
+    "Movies": "🎬",
+    "Fitness": "💪",
+    "Gaming": "🎮",
+    "Nature": "🌳",
+  };
+
+  return interestEmojis[interest] || "🔍"; // Default to a generic emoji if not found
+}
+
+// Helper function to format date
+function formatDate(dateString: string): string {
+  const date = new Date(dateString);
+  return date.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
 }

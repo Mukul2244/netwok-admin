@@ -1,349 +1,336 @@
 "use client"
-import React, { useEffect, useState } from 'react'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, AreaChart, Area, BarChart, Bar } from 'recharts'
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Badge } from "@/components/ui/badge"
-import { ArrowUp, ArrowDown, Users, Activity, Store, MessageCircle } from "lucide-react"
-import api from '@/lib/axios'
 
-interface MonthlyCount {
-  month: string;
-  count: number;
+import React, { useEffect, useState } from 'react';
+import {useRouter} from 'next/navigation';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { MoreHorizontal, Filter, ChevronDown, CheckIcon } from "lucide-react";
+import {toast} from "sonner"
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuSeparator, 
+  DropdownMenuTrigger 
+} from "@/components/ui/dropdown-menu";
+import api from "@/lib/axios";
+
+interface CustomerProfile {
+  doj: string;
 }
 
-interface DashboardEntity {
-  monthly_counts: MonthlyCount[];
-  total_count: number;
+interface User {
+  id: number;
+  username: string;
+  email: string;
+  customer_profile: CustomerProfile;
+  first_name: string;
+  last_name: string;
+  status: string;
+  last_active: string;
 }
 
-interface RestaurantData extends DashboardEntity {
-  total_revenue: number;
-}
+// Filter types
+type FilterType = 'all' | 'active' | 'inactive' | 'last7days' | 'last30days' | 'last90days';
 
-interface DashboardData {
-  customers: DashboardEntity;
-  restaurants: RestaurantData;
-  private_chatrooms: DashboardEntity;
-}
-
-
-export default function DashboardTab() {
-  const [dashboardData, setDashboardData] = useState<DashboardData>({
-    customers: {
-      monthly_counts: [],
-      total_count: 0
-    },
-    restaurants: {
-      monthly_counts: [],
-      total_count: 0,
-      total_revenue: 0
-    },
-    private_chatrooms: {
-      monthly_counts: [],
-      total_count: 0
-    }
-  })
-
-
-  
-  const [isLoading, setIsLoading] = useState(true)
-  const [timeframe, setTimeframe] = useState('monthly')
-
-  const getData = async () => {
-    setIsLoading(true)
-    try {
-      const response = await api.get('/superuser/')
-      setDashboardData(response.data)
-    } catch (error) {
-      console.error("Failed to fetch dashboard data:", error)
-    } finally {
-      setIsLoading(false)
-    }
-  }
+const UserManagement = () => {
+  const router=useRouter();
+  const [customers, setCustomers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterMenuOpen, setFilterMenuOpen] = useState(false);
+  const [activeFilter, setActiveFilter] = useState<FilterType>('all');
+  const [filterLabel, setFilterLabel] = useState("All Users");
 
   useEffect(() => {
-    getData()
-  }, [])
+    fetchCustomers();
+  }, []);
 
-  // Prepare data for charts
-  const prepareChartData = () => {
-    // Get all unique months from all data types
-    const allMonths = new Set<string>()
+  const fetchCustomers = async () => {
+    setLoading(true);
+    try {
+      const response = await api.get('/su/customers/');
+      // Simulate last_active dates since they aren't provided
+      const customersWithActivity = (response.data.results || []).map((customer: User) => ({
+        ...customer,
+        last_active: getRandomLastActive(),
+        // Ensure status is populated for filtering
+        status: customer.status || (Math.random() > 0.2 ? "active" : "inactive")
+      }));
+      setCustomers(customersWithActivity);
+    } catch (error) {
+      console.error("Failed to fetch customers:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    
-    dashboardData.customers.monthly_counts.forEach(item => allMonths.add(item.month))
-    dashboardData.restaurants.monthly_counts.forEach(item => allMonths.add(item.month))
-    dashboardData.private_chatrooms.monthly_counts.forEach(item => allMonths.add(item.month))
-    
-    // Create a sorted array of months
-    const sortedMonths = Array.from(allMonths).sort((a, b) => {
-      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-      return months.indexOf(a) - months.indexOf(b)
-    })
-    
-    // Create the chart data with all metrics
-    return sortedMonths.map(month => {
-      const customerData = dashboardData.customers.monthly_counts.find(item => item.month === month)
-      const restaurantData = dashboardData.restaurants.monthly_counts.find(item => item.month === month)
-      const chatroomData = dashboardData.private_chatrooms.monthly_counts.find(item => item.month === month)
-      
-     
+  const handleStatusToggle = async (customerId: number, currentStatus: string) => {
+    try {
+      if (currentStatus === "active") {
+        // Call disable API
+        const res=await api.post(`/su/disable/customer/${customerId}/`)
 
-      return {
-        month: month,
-        users: customerData ? customerData.count : 0,
-        restaurants: restaurantData ? restaurantData.count : 0,
-        chatrooms: chatroomData ? chatroomData.count : 0
+        toast(`${res.data.detail}`)
+        console.log(`Customer ${customerId} disabled`)
+      } else {
+        // Call enable API
+        const res=await api.post(`/su/activate/customer/${customerId}/`)
+        toast(`${res.data.detail}`)
+        console.log(`Customer ${customerId} enabled`)
       }
-    })
+      fetchCustomers()
+    } catch (error) {
+      console.error("Failed to update status", error)
+    }
   }
-  console.log(timeframe)
-  const chartData = prepareChartData()
+  const formatDate = (dateString: string) => {
+    if (!dateString) return "-";
+    const date = new Date(dateString);
+    return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
+  };
+
+  // Mock data for last active (since it's not in the API response)
+  const getRandomLastActive = () => {
+    const date = new Date();
+    date.setDate(date.getDate() - Math.floor(Math.random() * 30));
+    return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}, ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}:00`;
+  };
+
   
-  // Calculate growth percentages
-  const calculateGrowth = (data:MonthlyCount[]) => {
-    if (data.length < 2) return 0
-    const currentCount = data[data.length - 1].count
-    const previousCount = data[data.length - 2].count
-    return previousCount ? Math.round(((currentCount - previousCount) / previousCount) * 100) : 0
-  }
+
+  // Apply filters to customers
+  const applyFilters = (customers: User[]) => {
+    const now = new Date();
+    
+    return customers.filter(customer => {
+      // First apply search term filter
+      const matchesSearch = 
+        (customer.first_name?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+        (customer.last_name?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+        (customer.username?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+        (customer.email?.toLowerCase() || "").includes(searchTerm.toLowerCase());
+      
+      if (!matchesSearch) return false;
+      
+      // Then apply the selected filter
+      switch (activeFilter) {
+        case 'all':
+          return true;
+        case 'active':
+          return customer.status === "active";
+        case 'inactive':
+          return customer.status === "inactive";
+        case 'last7days': {
+          const joinDate = customer.customer_profile?.doj 
+            ? new Date(customer.customer_profile.doj) 
+            : null;
+          if (!joinDate) return false;
+          const diffTime = Math.abs(now.getTime() - joinDate.getTime());
+          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+          return diffDays <= 7;
+        }
+        case 'last30days': {
+          const joinDate = customer.customer_profile?.doj 
+            ? new Date(customer.customer_profile.doj) 
+            : null;
+          if (!joinDate) return false;
+          const diffTime = Math.abs(now.getTime() - joinDate.getTime());
+          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+          return diffDays <= 30;
+        }
+        case 'last90days': {
+          const joinDate = customer.customer_profile?.doj 
+            ? new Date(customer.customer_profile.doj) 
+            : null;
+          if (!joinDate) return false;
+          const diffTime = Math.abs(now.getTime() - joinDate.getTime());
+          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+          return diffDays <= 90;
+        }
+        default:
+          return true;
+      }
+    });
+  };
+
+  const filteredCustomers = applyFilters(customers);
+
+  // Handle filter selection
+  const handleFilterSelect = (filter: FilterType, label: string) => {
+    setActiveFilter(filter);
+    setFilterLabel(label);
+    setFilterMenuOpen(false);
+  };
+
+  // Check if a filter is active
+  const isFilterActive = (filter: FilterType) => activeFilter === filter;
+
   
-  const customerGrowth = calculateGrowth(dashboardData.customers.monthly_counts)
-  const restaurantGrowth = calculateGrowth(dashboardData.restaurants.monthly_counts)
-  const chatroomGrowth = calculateGrowth(dashboardData.private_chatrooms.monthly_counts)
-  
-  // Calculate average revenue per restaurant
-  const avgRevenuePerRestaurant = dashboardData.restaurants.total_count > 0 
-    ? Math.round(dashboardData.restaurants.total_revenue / dashboardData.restaurants.total_count) 
-    : 0
 
   return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <div>
-            <CardTitle className="text-2xl font-bold">Platform Overview</CardTitle>
-            <CardDescription>Key metrics across users, restaurants, and chatrooms</CardDescription>
-          </div>
-          <Tabs defaultValue="monthly" className="w-[240px]" onValueChange={setTimeframe}>
-            <TabsList className="grid grid-cols-3">
-              <TabsTrigger value="weekly">Weekly</TabsTrigger>
-              <TabsTrigger value="monthly">Monthly</TabsTrigger>
-              <TabsTrigger value="yearly">Yearly</TabsTrigger>
-            </TabsList>
-          </Tabs>
+    <div className="min-h-screen w-full p-6 bg-gray-50 dark:bg-zinc-900">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">User Management</h1>
+        {/* <Button className="bg-purple-600 hover:bg-purple-700">
+          <Plus className="h-4 w-4 mr-2" />
+          New User
+        </Button> */}
+      </div>
+
+      <Card className="w-full h-[calc(100vh-150px)] overflow-y-auto">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-xl">All Users</CardTitle>
+          <p className="text-sm text-gray-500">Manage all registered users in the system</p>
         </CardHeader>
         <CardContent>
-          {isLoading ? (
-            <div className="flex items-center justify-center h-[300px]">
-              <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full"></div>
+          <div className="flex justify-between items-center mb-4">
+            <div className="relative w-80">
+              <Input
+                placeholder="Search users..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-3"
+              />
             </div>
-          ) : (
-            <div className="h-[300px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="colorUsers" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8}/>
-                      <stop offset="95%" stopColor="#8884d8" stopOpacity={0.1}/>
-                    </linearGradient>
-                    <linearGradient id="colorRestaurants" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#82ca9d" stopOpacity={0.8}/>
-                      <stop offset="95%" stopColor="#82ca9d" stopOpacity={0.1}/>
-                    </linearGradient>
-                    <linearGradient id="colorChatrooms" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#ffc658" stopOpacity={0.8}/>
-                      <stop offset="95%" stopColor="#ffc658" stopOpacity={0.1}/>
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-                  <XAxis dataKey="month" />
-                  <YAxis />
-                  <Tooltip 
-                    contentStyle={{ backgroundColor: "#1f2937", border: "none", borderRadius: "8px", color: "white" }}
-                    labelStyle={{ color: "white", fontWeight: "bold" }}
-                  />
-                  <Legend />
-                  <Area type="monotone" dataKey="users" name="Users" stroke="#8884d8" fillOpacity={1} fill="url(#colorUsers)" />
-                  <Area type="monotone" dataKey="restaurants" name="Restaurants" stroke="#82ca9d" fillOpacity={1} fill="url(#colorRestaurants)" />
-                  <Area type="monotone" dataKey="chatrooms" name="Chatrooms" stroke="#ffc658" fillOpacity={1} fill="url(#colorChatrooms)" />
-                </AreaChart>
-              </ResponsiveContainer>
+            <div className="relative">
+              <Button 
+                variant="outline" 
+                className="flex items-center gap-2"
+                onClick={() => setFilterMenuOpen(!filterMenuOpen)}
+              >
+                <Filter className="h-4 w-4" />
+                {filterLabel}
+                <ChevronDown className="h-4 w-4" />
+              </Button>
+              
+              {filterMenuOpen && (
+                <div className="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg z-10 border border-gray-200 dark:bg-gray-950 dark:border-gray-800">
+                  <div className="p-2 font-medium border-b">Filter by</div>
+                  <div>
+                    <div 
+                      className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer flex items-center justify-between"
+                      onClick={() => handleFilterSelect('all', 'All Users')}
+                    >
+                      <span>All Users</span>
+                      {isFilterActive('all') && <CheckIcon className="h-4 w-4" />}
+                    </div>
+                    <div 
+                      className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer flex items-center justify-between"
+                      onClick={() => handleFilterSelect('active', 'Active Users')}
+                    >
+                      <span>Active Users</span>
+                      {isFilterActive('active') && <CheckIcon className="h-4 w-4" />}
+                    </div>
+                    <div 
+                      className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer flex items-center justify-between"
+                      onClick={() => handleFilterSelect('inactive', 'Inactive Users')}
+                    >
+                      <span>Inactive Users</span>
+                      {isFilterActive('inactive') && <CheckIcon className="h-4 w-4" />}
+                    </div>
+                    <div className="p-2 font-medium hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer">Join Date</div>
+                    <div 
+                      className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer pl-4 flex items-center justify-between"
+                      onClick={() => handleFilterSelect('last7days', 'Last 7 days')}
+                    >
+                      <span>Last 7 days</span>
+                      {isFilterActive('last7days') && <CheckIcon className="h-4 w-4" />}
+                    </div>
+                    <div 
+                      className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer pl-4 flex items-center justify-between"
+                      onClick={() => handleFilterSelect('last30days', 'Last 30 days')}
+                    >
+                      <span>Last 30 days</span>
+                      {isFilterActive('last30days') && <CheckIcon className="h-4 w-4" />}
+                    </div>
+                    <div 
+                      className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer pl-4 flex items-center justify-between"
+                      onClick={() => handleFilterSelect('last90days', 'Last 90 days')}
+                    >
+                      <span>Last 90 days</span>
+                      {isFilterActive('last90days') && <CheckIcon className="h-4 w-4" />}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
-          )}
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b">
+                  <th className="text-left py-3 px-4 font-medium text-gray-600">Name</th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-600">Username</th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-600">Email</th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-600">Join Date</th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-600">Last Active</th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-600">Status</th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-600">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {loading ? (
+                  <tr>
+                    <td colSpan={7} className="text-center py-4">Loading...</td>
+                  </tr>
+                ) : filteredCustomers.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="text-center py-4">No users found</td>
+                  </tr>
+                ) : (
+                  filteredCustomers.map((customer) => (
+                    <tr key={customer.id} className="border-b hover:bg-gray-100 dark:hover:bg-gray-800">
+                      <td className="py-3 px-4">{customer.first_name} {customer.last_name}</td>
+                      <td className="py-3 px-4">{customer.username || "unknown"}</td>
+                      <td className="py-3 px-4">{customer.email}</td>
+                      <td className="py-3 px-4">{customer.customer_profile?.doj ? formatDate(customer.customer_profile.doj): "-"}</td>
+                      <td className="py-3 px-4">{customer.last_active}</td>
+                      <td className="py-3 px-4">
+                        <span className={`px-2 py-1 rounded-full text-xs ${customer.status === "active" ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
+                          {customer.status === "active" ? 'Active' : 'Inactive'}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => router.push(`/admin/users/${customer.id}/userProfile`)}>View profile</DropdownMenuItem>
+                            <DropdownMenuItem>Edit user</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => router.push(`/admin/users/${customer.id}/userActivity`)}>View activity</DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+  className={customer.status === "active" ? "text-red-600" : "text-green-600"}
+  onClick={() => handleStatusToggle(customer.id, customer.status)}
+>
+  {customer.status === "active" ? "Disable Account" : "Enable Account"}
+</DropdownMenuItem>
+
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
           
-          <div className="mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-            <Card className="bg-card/50">
-              <CardContent className="pt-6">
-                <div className="flex items-center">
-                  <div className="mr-4 bg-primary/10 p-2 rounded-full">
-                    <Users className="h-6 w-6 text-primary" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Total Users</p>
-                    <div className="flex items-baseline">
-                      <h3 className="text-2xl font-bold">{dashboardData.customers.total_count}</h3>
-                      <Badge variant={customerGrowth >= 0 ? "success" : "destructive"} className="ml-2 px-1 py-0">
-                        <span className="flex items-center text-xs">
-                          {customerGrowth >= 0 ? <ArrowUp className="h-3 w-3 mr-1" /> : <ArrowDown className="h-3 w-3 mr-1" />}
-                          {Math.abs(customerGrowth)}%
-                        </span>
-                      </Badge>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card className="bg-card/50">
-              <CardContent className="pt-6">
-                <div className="flex items-center">
-                  <div className="mr-4 bg-primary/10 p-2 rounded-full">
-                    <Store className="h-6 w-6 text-primary" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Restaurants</p>
-                    <div className="flex items-baseline">
-                      <h3 className="text-2xl font-bold">{dashboardData.restaurants.total_count}</h3>
-                      <Badge variant={restaurantGrowth >= 0 ? "success" : "destructive"} className="ml-2 px-1 py-0">
-                        <span className="flex items-center text-xs">
-                          {restaurantGrowth >= 0 ? <ArrowUp className="h-3 w-3 mr-1" /> : <ArrowDown className="h-3 w-3 mr-1" />}
-                          {Math.abs(restaurantGrowth)}%
-                        </span>
-                      </Badge>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card className="bg-card/50">
-              <CardContent className="pt-6">
-                <div className="flex items-center">
-                  <div className="mr-4 bg-primary/10 p-2 rounded-full">
-                    <MessageCircle className="h-6 w-6 text-primary" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Chatrooms</p>
-                    <div className="flex items-baseline">
-                      <h3 className="text-2xl font-bold">{dashboardData.private_chatrooms.total_count}</h3>
-                      <Badge variant={chatroomGrowth >= 0 ? "success" : "destructive"} className="ml-2 px-1 py-0">
-                        <span className="flex items-center text-xs">
-                          {chatroomGrowth >= 0 ? <ArrowUp className="h-3 w-3 mr-1" /> : <ArrowDown className="h-3 w-3 mr-1" />}
-                          {Math.abs(chatroomGrowth)}%
-                        </span>
-                      </Badge>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card className="bg-card/50">
-              <CardContent className="pt-6">
-                <div className="flex items-center">
-                  <div className="mr-4 bg-primary/10 p-2 rounded-full">
-                    <Activity className="h-6 w-6 text-primary" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Total Revenue</p>
-                    <div className="flex items-baseline">
-                      <h3 className="text-2xl font-bold">${dashboardData.restaurants.total_revenue.toLocaleString()}</h3>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+          <div className="mt-4 flex justify-between items-center text-sm text-gray-500">
+            <div>
+              Showing {filteredCustomers.length} of {customers.length} users
+            </div>
           </div>
         </CardContent>
       </Card>
-      
-      <div className="grid gap-6 md:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Revenue Analysis</CardTitle>
-            <CardDescription>Restaurant performance metrics</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="h-[180px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-                  <XAxis dataKey="month" />
-                  <YAxis />
-                  <Tooltip 
-                    contentStyle={{ backgroundColor: "#1f2937", border: "none", borderRadius: "8px", color: "white" }}
-                  />
-                  <Bar dataKey="restaurants" name="Restaurants" fill="#82ca9d" />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-            
-            <div className="mt-6">
-              <h4 className="text-sm font-medium mb-3">Restaurant Metrics</h4>
-              <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm">Total Revenue</span>
-                  <Badge variant="outline" className="font-mono">${dashboardData.restaurants.total_revenue.toLocaleString()}</Badge>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm">Avg. Revenue per Restaurant</span>
-                  <Badge variant="outline" className="font-mono">${avgRevenuePerRestaurant.toLocaleString()}</Badge>
-                </div>
-               
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader>
-            <CardTitle>Chatroom Analytics</CardTitle>
-            <CardDescription>User engagement and communication patterns</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="h-[180px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-                  <XAxis dataKey="month" />
-                  <YAxis />
-                  <Tooltip 
-                    contentStyle={{ backgroundColor: "#1f2937", border: "none", borderRadius: "8px", color: "white" }}
-                  />
-                  <Line 
-                    type="monotone" 
-                    dataKey="chatrooms" 
-                    name="Chatrooms" 
-                    stroke="#ffc658" 
-                    strokeWidth={2}
-                    dot={{ r: 4 }}
-                    activeDot={{ r: 6 }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-            
-            <div className="mt-6">
-              <h4 className="text-sm font-medium mb-3">Chatroom Stats</h4>
-              <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm">Total Chatrooms</span>
-                  <Badge variant="outline" className="font-mono">{dashboardData.private_chatrooms.total_count}</Badge>
-                </div>
-                
-                <div className="flex justify-between items-center">
-                  <span className="text-sm">Growth Rate</span>
-                  <Badge variant={chatroomGrowth >= 0 ? "success" : "destructive"}>
-                    {chatroomGrowth >= 0 ? `+${chatroomGrowth}%` : `${chatroomGrowth}%`}
-                  </Badge>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
     </div>
-  )
-}
+  );
+};
+
+export default UserManagement;

@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
   const { accessToken, refreshToken, isSuperuser } = await req.json();
-
   if (!accessToken || !refreshToken) {
     return NextResponse.json(
       { message: "Access token is required" },
@@ -27,7 +26,7 @@ export async function POST(req: NextRequest) {
     sameSite: "lax",
   });
 
-  response.cookies.set("isSuperUser", isSuperuser, {
+  response.cookies.set("is_superuser", isSuperuser, {
     httpOnly: true,
     secure: true,
     path: "/",

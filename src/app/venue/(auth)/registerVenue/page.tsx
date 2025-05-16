@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, ChevronLeft, QrCode } from "lucide-react";
 import Image from "next/image";
@@ -10,8 +11,12 @@ import VenueDetails from "@/components/venueRegistration/VenueDetails";
 import VenueLocation from "@/components/venueRegistration/VenueLocation";
 import AccountSetup from "@/components/venueRegistration/AccountSetup";
 import PaymentDetails from "@/components/venueRegistration/PaymentDetails";
+import api from "@/lib/axios";
+import axios from "axios"
+import { toast } from "sonner";
 
 export default function VenueSignupPage() {
+  const router=useRouter()
   const [step, setStep] = useState(1);
   const [animateDirection, setAnimateDirection] = useState<"next" | "prev">(
     "next"
@@ -60,8 +65,60 @@ export default function VenueSignupPage() {
     setStep((prev) => Math.max(prev - 1, 1));
   };
 
-  const handleFinalSubmit = () => {
+  const handleFinalSubmit = async() => {
     console.log("Submitted form data:", formData);
+    const [month, year] = formData.payment.expiryDate.split('/');
+
+    const data={
+      name:formData.venueDetails.venueName,
+   venue_type:formData.venueDetails.venueType,
+   capacity:formData.venueDetails.capacity,
+   description:formData.venueDetails.description,
+   address:{
+      address:formData.location.address,
+      city:formData.location.city,
+      state:formData.location.state,
+      postal_code:formData.location.postalCode,
+      country:formData.location.country,
+      contact:formData.location.phoneNumber,
+      business_email:formData.account.email,
+      contact_name:formData.account.name,
+      position:formData.account.position
+   },
+   business_details:{
+      subscription_plan:formData.account.plan
+   },
+   payment_details: {
+    card_no: formData.payment.cardNumber,
+    expiry_month:month ,
+    expiry_year: year,
+    cvc: formData.payment.cvv,
+    name_on_card: formData.payment.cardHolderName,
+    billing_address: formData.payment.billingAddress,
+    zipcode: formData.payment.zipCode,
+    city: formData.payment.city,
+    country: formData.payment.country,
+   
+  }
+    }
+    try{
+      const res = await api.post("/venues/", data)
+      console.log(res, "----------------")
+      if (res.status >= 200 && res.status < 300) {
+        toast("Account registered successfully");
+        router.push("/venue/login")
+      }
+    }
+    catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        toast(error.response.data.detail || "Invalid details");
+      } else {
+        toast("An unexpected error occurred. Please try again.");
+      }
+      console.log(error);
+    }
+   
+    
   };
 
   return (

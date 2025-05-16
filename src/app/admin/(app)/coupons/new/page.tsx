@@ -117,20 +117,7 @@ export default function NewCouponPage() {
     }))
   }
 
-  // Calculate status based on dates
-  const determineInitialStatus = () => {
-    const now = new Date();
-    const validFromDate = new Date(formData.valid_from);
-    const validToDate = new Date(formData.valid_to);
-
-    if (validFromDate > now) {
-      return "scheduled";
-    } else if (validToDate < now) {
-      return "expired";
-    } else {
-      return "active";
-    }
-  }
+  
 
   const handleSubmit = async () => {
     try {

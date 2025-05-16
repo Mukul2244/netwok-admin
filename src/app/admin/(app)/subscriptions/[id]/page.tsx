@@ -51,7 +51,8 @@ const subscribers = [
   { id: "venue_5", name: "Urban Diner", email: "contact@urbandiner.com", subscribedOn: "2023-10-20", status: "active" },
 ]
 
-export default function SubscriptionDetailPage({ params }: { params: { id: string } }) {
+export default function SubscriptionDetailPage() {
+
   const [isEditing, setIsEditing] = useState(false)
   const [features, setFeatures] = useState<string[]>(subscriptionPlan.features)
   const [newFeature, setNewFeature] = useState("")

@@ -275,7 +275,7 @@ const handleSaveChanges = async () => {
                 <AlertDialogHeader>
                   <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                   <AlertDialogDescription>
-                    This will permanently delete the coupon "{couponId}". This
+                    This will permanently delete the coupon &quot;{couponId}&quot;. This
                     action cannot be undone.
                   </AlertDialogDescription>
                 </AlertDialogHeader>

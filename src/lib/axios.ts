@@ -4,7 +4,7 @@ import getCookie from "@/lib/getCookie";
 const api = axios.create({
   baseURL: "https://api.netwok.app",
   headers: {
-    "Content-Type": "multipart/form-data",
+    "Content-Type": "application/json",
   },
 });
 

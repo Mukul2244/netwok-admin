@@ -11,6 +11,7 @@ import {
   Home,
   Store,
   Users,
+  Settings
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -37,6 +38,12 @@ export default function AdminLayout({
       href: "/admin/activity",
       icon: Activity,
       value: "activity",
+    },
+    {
+      name: "Settings",
+      href: "/admin/settings",
+      icon: Settings,
+      value: "settings",
     },
   ];
   return (

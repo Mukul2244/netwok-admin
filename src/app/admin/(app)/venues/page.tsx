@@ -9,6 +9,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import {toast} from "sonner"
 import {
   Table,
   TableBody,
@@ -112,6 +113,27 @@ export default function PubsTab() {
     setStatusFilter("All Venues");
     setSubscriptionFilter("");
   };
+
+
+  const handleVenueStatus=async(venueId:string,status:boolean)=>{
+    try {
+      if (status) {
+        // Call disable API
+        const res=await api.post(`/su/venue/${venueId}/disable/`)
+
+        toast(`${res.data.detail}`)
+        console.log(`Venue ${venueId} disabled`)
+      } else {
+        // Call enable API
+        const res=await api.post(`/su/venue/${venueId}/activate/`)
+        toast(`${res.data.detail}`)
+        console.log(`Venue ${venueId} enabled`)
+      }
+      fetchVenues()
+    } catch (error) {
+      console.error("Failed to update status", error)
+    }
+  }
 
   // Render subscription badge with appropriate color
   const renderSubscriptionBadge = (subscription: string) => {
@@ -506,23 +528,26 @@ export default function PubsTab() {
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
-                          className={`cursor-pointer flex items-center gap-2 ${
-                            venue.status 
-                              ? "text-red-600 dark:text-red-400"
-                              : "text-green-600 dark:text-green-400"
-                          }`}
-                        >
-                          {venue.status ? (
-                            <>
-                              <AlertTriangle className="h-4 w-4" />
-                              Disable venue
-                            </>
-                          ) : (
-                            <>
-                              <CheckCircle className="h-4 w-4" />
-                              Enable venue
-                            </>
-                          )}
+  onClick={() => handleVenueStatus(venue.id, venue.status)} 
+  className={`cursor-pointer flex items-center gap-2 ${
+    venue.status
+      ? "text-red-600 dark:text-red-400"
+      : "text-green-600 dark:text-green-400"
+  }`}
+>
+  {venue.status ? (
+    <>
+      <AlertTriangle className="h-4 w-4" />
+      Disable venue
+    </>
+  ) : (
+    <>
+      <CheckCircle className="h-4 w-4" />
+      Enable venue
+    </>
+  )}
+
+
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>

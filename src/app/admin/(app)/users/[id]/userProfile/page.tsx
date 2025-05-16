@@ -196,6 +196,11 @@ export default function UserDetailsPage({ params }: { params: Promise<{ id: stri
     }
   };
 
+
+  // const handleSendMessage=async()=>{
+  //     const res=api.get(`/private/list/`)
+  // }
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen dark:bg-gray-950 dark:text-white">
@@ -610,7 +615,8 @@ export default function UserDetailsPage({ params }: { params: Promise<{ id: stri
                 </span>
               </button>
               
-              <button className="w-full flex items-center justify-between bg-gray-100 dark:bg-zinc-700 hover:bg-gray-200 dark:hover:bg-zinc-600 px-4 py-3 rounded-md transition-colors group">
+              <button className="w-full flex items-center justify-between bg-gray-100 dark:bg-zinc-700 hover:bg-gray-200 dark:hover:bg-zinc-600 px-4 py-3 rounded-md transition-colors group"
+              >
                 <span className="flex items-center gap-2 text-gray-700 dark:text-white">
                   <MessageSquare size={18} className="text-blue-500 group-hover:scale-110 transition-transform" />
                   <span>Send Message</span>

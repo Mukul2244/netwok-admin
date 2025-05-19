@@ -41,21 +41,37 @@ export default function VenueLoginPage() {
   const handleLogin = async (data: z.infer<typeof LoginSchema>) => {
     setIsLoading(true);
     try {
-      const response = await api.post("/api/token/", data);
+      const response = await api.post("/login/venue_owner/", data);
+      let userType = "";
+      if (response.data.is_superuser) {
+        userType = "superuser";
+      } else if (response.data.is_customer) {
+        userType = "customer";
+      } else if (response.data.is_venue_owner) {
+        userType = "venue_owner";
+      }
       localStorage.setItem(
         "user",
         JSON.stringify({
-          username: response.data.user.username,
-          email: response.data.user.email,
-          id: response.data.user.id,
+          username: response.data.username,
+          email: response.data.email,
+          userType: userType,
+          id: response.data.id,
         })
       );
-      setUserDetails(response.data.user);
+      const user = {
+        username: response.data.username,
+        email: response.data.email,
+        userType: userType,
+        id: response.data.id,
+      };
+      setUserDetails(user);
 
       await axios.post("/api/setCookie", {
         accessToken: response.data.access,
         refreshToken: response.data.refresh,
-        isSuperuser: response.data.user.is_superuser,
+        isSuperuser: response.data.is_superuser,
+  
       });
       router.push("/venue/");
       toast("Account logged in successfully");
@@ -87,16 +103,7 @@ export default function VenueLoginPage() {
           <ArrowLeft className="h-5 w-5" />
           <span className="text-sm">Home</span>
         </Link>
-        <div>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-gray-300 hover:text-white hover:bg-gray-800 text-xs px-3 py-1 h-auto"
-            asChild
-          >
-            <Link href="/venue/register">Register Venue</Link>
-          </Button>
-        </div>
+       
       </header>
 
       <main className="relative z-10 flex-1 px-4 py-6 flex flex-col items-center justify-center">
@@ -206,7 +213,7 @@ export default function VenueLoginPage() {
                     Don&apos;t have a venue account?
                   </span>{" "}
                   <Link
-                    href="/venue/register"
+                    href="/venue/signup"
                     className="text-blue-400 hover:underline"
                   >
                     Register now

@@ -7,10 +7,12 @@ import {
   Menu,
   Plus,
   Activity,
-  DollarSign,
+  CreditCard,
   Home,
   Store,
   Users,
+  Settings,
+  TicketPercent
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -27,16 +29,28 @@ export default function AdminLayout({
     { name: "Venues", href: "/admin/venues", icon: Store, value: "venues" },
     { name: "Users", href: "/admin/users", icon: Users, value: "users" },
     {
-      name: "Revenue",
-      href: "/admin/revenue",
-      icon: DollarSign,
-      value: "revenue",
+      name: "Coupons",
+      href: "/admin/coupons",
+      icon: TicketPercent,
+      value: "coupons",
+    },
+    {
+      name: "Subscriptions",
+      href: "/admin/subscriptions",
+      icon: CreditCard,
+      value: "subscriptions",
     },
     {
       name: "Activity Log",
       href: "/admin/activity",
       icon: Activity,
       value: "activity",
+    },
+    {
+      name: "Settings",
+      href: "/admin/settings",
+      icon: Settings,
+      value: "settings",
     },
   ];
   return (

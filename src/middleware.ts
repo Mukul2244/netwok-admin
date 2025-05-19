@@ -3,13 +3,14 @@ import type { NextRequest } from "next/server";
 
 export async function middleware(req: NextRequest) {
   const accessToken = req.cookies.get("accessToken")?.value;
-  const isSuperUser = req.cookies.get("isSuperUser")?.value === "true";
+  const isSuperUser = req.cookies.get("is_superuser")?.value === "true";
   const path = req.nextUrl.pathname;
 
   if (
     path === "/admin/login"
     || path === "/venue/login"
-    || path === "/venue/register"
+    ||  path==="/venue/signup"
+  
   ) {
     return NextResponse.next();
   }

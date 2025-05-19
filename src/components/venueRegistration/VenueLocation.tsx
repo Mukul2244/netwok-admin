@@ -14,17 +14,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ChevronRight } from "lucide-react";
-
-const venueLocationSchema = z.object({
-  address: z.string().min(5, "Address must be at least 5 characters."),
-  city: z.string().min(2, "City must be at least 2 characters."),
-  state: z.string().min(2, "State must be at least 2 characters."),
-  postalCode: z.string().min(4, "Postal code must be at least 4 characters."),
-  country: z.string().min(2, "Country must be at least 2 characters."),
-  phoneNumber: z
-    .string()
-    .min(10, "Phone number must be at least 10 characters."),
-});
+import { venueLocationSchema } from "@/schemas/RegisterSchema";
 
 type VenueLocationForm = z.infer<typeof venueLocationSchema>;
 
@@ -36,20 +26,21 @@ interface Props {
 
 }
 export default function VenueLocation({
-  // data,
+  data,
   updateData,
   onNext,
-  // onPrev,
+  
 }: Props) {
 
   const form = useForm<VenueLocationForm>({
     resolver: zodResolver(venueLocationSchema),
     defaultValues: {
-      address: "",
-      city: "",
-      state: "",
-      postalCode: "",
-      country: "",
+      address: data?.address || "",
+      city: data?.city || "",
+      state: data?.state || "",
+      postalCode: data?.postalCode|| "",
+      country:data?.country|| "",
+      phoneNumber:data?.phoneNumber|| "",
     },
   });
 

@@ -1,6 +1,15 @@
 "use client";
 import React, { useEffect, useState } from "react";
-
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+import {toast} from "sonner"
 import {
   Table,
   TableBody,
@@ -13,7 +22,7 @@ import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-
+import api from "@/lib/axios";
 import {
   Search,
   Filter,
@@ -42,94 +51,22 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 
-// interface Venue {
-//   id: string;
-//   name: string;
-//   address: string;
-//   subscription: "Starter" | "Professional" | "Enterprise";
-//   lastPayment: string;
-//   lastScanned: string;
-//   status: "Active" | "Inactive";
-// }
+interface Venue {
+  id: string;
+  name: string;
+  address: string;
+  subscription: "Starter" | "Professional" | "Enterprise";
+  last_payment_date: string;
+  last_qr_scanned: string;
+  status: boolean;
+}
 
-const venues=[
-  {
-    id: "1",
-    name: "The Golden Pub",
-    address: "123 Main St, London, UK",
-    subscription: "Professional",
-    lastPayment: "15/06/2023",
-    lastScanned: "18/06/2023, 20:02:00",
-    status: "Active",
-  },
-  {
-    id: "2",
-    name: "Blue Horizon",
-    address: "456 Ocean Dr, Miami, FL",
-    subscription: "Enterprise",
-    lastPayment: "22/04/2025",
-    lastScanned: "18/06/2023, 01:15:00",
-    status: "Active",
-  },
-  {
-    id: "3",
-    name: "Sunset Cafe",
-    address: "789 Sunset Blvd, Los Angeles, CA",
-    subscription: "Professional",
-    lastPayment: "05/06/2023",
-    lastScanned: "18/06/2023, 17:45:00",
-    status: "Active",
-  },
-  {
-    id: "4",
-    name: "Central Perk",
-    address: "90 Bedford St, New York, NY",
-    subscription: "Starter",
-    lastPayment: "01/06/2023",
-    lastScanned: "16/06/2023, 14:52:00",
-    status: "Active",
-  },
-  {
-    id: "5",
-    name: "Red Lion",
-    address: "567 State St, Chicago, IL",
-    subscription: "Starter",
-    lastPayment: "28/05/2023",
-    lastScanned: "30/05/2023, 22:18:00",
-    status: "Inactive",
-  },
-  {
-    id: "6",
-    name: "The Prancing Pony",
-    address: "1 Bree Rd, Middle Earth",
-    subscription: "Professional",
-    lastPayment: "25/05/2023",
-    lastScanned: "18/06/2023, 13:40:00",
-    status: "Active",
-  },
-  {
-    id: "7",
-    name: "Moe's Tavern",
-    address: "123 Springfield Ave, Springfield",
-    subscription: "Starter",
-    lastPayment: "20/05/2023",
-    lastScanned: "23/05/2023, 02:03:00",
-    status: "Inactive",
-  },
-  {
-    id: "8",
-    name: "The Three Broomsticks",
-    address: "Hogsmeade Village, Scotland",
-    subscription: "Enterprise",
-    lastPayment: "15/05/2023",
-    lastScanned: "17/06/2023, 20:57:00",
-    status: "Active",
-  },
-]
+
 
 export default function PubsTab() {
-  // const [venues, setVenues] = useState<Venue[]>([]);
-
+  const [venues, setVenues] = useState<Venue[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("All Venues");
   const [subscriptionFilter, setSubscriptionFilter] = useState("");
@@ -139,9 +76,9 @@ export default function PubsTab() {
   // Fetch data from the API
   const fetchVenues = async () => {
     try {
-      // const response = await api.get("/superuser/pubsdata/");
-      // Once API is ready, uncomment this to use real data
-      // setVenues(response.data);
+      const response = await api.get("/su/venue/details/");
+      console.log(response.data,"------------")
+      setVenues(response.data);
     } catch (error) {
       console.error("Error fetching venues data:", error);
       // Keep using the mock data if API fails
@@ -160,14 +97,14 @@ export default function PubsTab() {
       venue.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       venue.address.toLowerCase().includes(searchQuery.toLowerCase());
 
-    const matchesStatus =
+      const matchesStatus =
       statusFilter === "All Venues" ||
-      (statusFilter === "Active Venues" && venue.status === "Active") ||
-      (statusFilter === "Inactive Venues" && venue.status === "Inactive");
-
+      (statusFilter === "Active Venues" && venue.status === true) ||
+      (statusFilter === "Inactive Venues" && venue.status === false);
+    
     const matchesSubscription =
-      !subscriptionFilter || venue.subscription === subscriptionFilter;
-
+      !subscriptionFilter || venue.subscription === subscriptionFilter.toLowerCase();
+     console.log(venue.subscription,subscriptionFilter,"ssssssssssssssssss")
     return matchesSearch && matchesStatus && matchesSubscription;
   });
 
@@ -177,46 +114,179 @@ export default function PubsTab() {
     setSubscriptionFilter("");
   };
 
+
+  const handleVenueStatus=async(venueId:string,status:boolean)=>{
+    try {
+      if (status) {
+        // Call disable API
+        const res=await api.post(`/su/venue/${venueId}/disable/`)
+
+        toast(`${res.data.detail}`)
+        console.log(`Venue ${venueId} disabled`)
+      } else {
+        // Call enable API
+        const res=await api.post(`/su/venue/${venueId}/activate/`)
+        toast(`${res.data.detail}`)
+        console.log(`Venue ${venueId} enabled`)
+      }
+      fetchVenues()
+    } catch (error) {
+      console.error("Failed to update status", error)
+    }
+  }
+
   // Render subscription badge with appropriate color
   const renderSubscriptionBadge = (subscription: string) => {
-    switch (subscription) {
+    switch (subscription.charAt(0).toUpperCase() + subscription.slice(1)) {
       case "Professional":
         return (
-          <Badge className="bg-pink-500 hover:bg-pink-600 dark:bg-pink-600 dark:hover:bg-pink-700">
-            {subscription}
+          <Badge className="border-pink-500 bg-white text-pink-500  dark:bg-gray-200 ">
+            Professional
           </Badge>
         );
       case "Enterprise":
         return (
-          <Badge className="bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700">
-            {subscription}
+          <Badge className="border-blue-500 bg-white text-blue-500  dark:bg-gray-200">
+            Enterprise
           </Badge>
         );
       case "Starter":
         return (
-          <Badge className="bg-purple-500 hover:bg-purple-600 dark:bg-purple-600 dark:hover:bg-purple-700">
-            {subscription}
+          <Badge className="border-purple-500 text-purple-500 bg-white  dark:bg-gray-200">
+            Starter
           </Badge>
         );
       default:
-        return <Badge>{subscription}</Badge>;
+        return <span className="text-gray-500">No Subscription</span>;
     }
   };
 
   // Render status badge with appropriate color
-  const renderStatusBadge = (status: string) => {
-    return status === "Active" ? (
+  const renderStatusBadge = (status: boolean) => {
+    return status  ? (
       <Badge className="bg-emerald-500 hover:bg-emerald-600 dark:bg-emerald-600 dark:hover:bg-emerald-700">
-        {status}
+        Active
       </Badge>
     ) : (
       <Badge className="bg-gray-500 hover:bg-gray-600 dark:bg-gray-600 dark:hover:bg-gray-700">
-        {status}
+       Inactive
       </Badge>
     );
   };
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = filteredVenues.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(filteredVenues.length / itemsPerPage);
 
+  const renderPagination = () => {
+    if (filteredVenues.length <= itemsPerPage) return null;
+  
+    const pageNumbers = [];
+    const maxPageDisplay = 5;
+    
+    let startPage = Math.max(1, currentPage - 2);
+    const endPage = Math.min(totalPages, startPage + maxPageDisplay - 1);
+    
+    if (endPage - startPage + 1 < maxPageDisplay) {
+      startPage = Math.max(1, endPage - maxPageDisplay + 1);
+    }
+  
+    for (let i = startPage; i <= endPage; i++) {
+      pageNumbers.push(i);
+    }  
+    return (
+      <Pagination className="mt-4">
+        <PaginationContent>
+          <PaginationItem>
+            <PaginationPrevious
+              href="#"
+              onClick={(e) => {
+                e.preventDefault();
+                if (currentPage > 1) setCurrentPage(currentPage - 1);
+              }}
+              className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+            />
+          </PaginationItem>
+          
+          {startPage > 1 && (
+            <>
+              <PaginationItem>
+                <PaginationLink
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setCurrentPage(1);
+                  }}
+                  className="cursor-pointer"
+                >
+                  1
+                </PaginationLink>
+              </PaginationItem>
+              {startPage > 2 && (
+                <PaginationItem>
+                  <PaginationEllipsis />
+                </PaginationItem>
+              )}
+            </>
+          )}
+          
+          {pageNumbers.map(number => (
+            <PaginationItem key={number}>
+              <PaginationLink
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setCurrentPage(number);
+                }}
+                isActive={currentPage === number}
+                className="cursor-pointer"
+              >
+                {number}
+              </PaginationLink>
+            </PaginationItem>
+          ))}
+          
+          {endPage < totalPages && (
+            <>
+              {endPage < totalPages - 1 && (
+                <PaginationItem>
+                  <PaginationEllipsis />
+                </PaginationItem>
+              )}
+              <PaginationItem>
+                <PaginationLink
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setCurrentPage(totalPages);
+                  }}
+                  className="cursor-pointer"
+                >
+                  {totalPages}
+                </PaginationLink>
+              </PaginationItem>
+            </>
+          )}
+          
+          <PaginationItem>
+            <PaginationNext
+              href="#"
+              onClick={(e) => {
+                e.preventDefault();
+                if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+              }}
+              className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+            />
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
+    );
+  };
   return (
+
+
+
+
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
@@ -225,18 +295,7 @@ export default function PubsTab() {
             Manage all registered venues in the system
           </p>
         </div>
-        <div className="flex items-center gap-4">
-          {/* <Button
-            size="sm"
-            className="rounded-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 border-0"
-            asChild
-          >
-            <Link href="/admin/venues/new">
-              <Plus className="mr-2 h-4 w-4" />
-              New Venue
-            </Link>
-          </Button> */}
-        </div>
+        
       </div>
 
       <div className="flex items-center justify-between gap-4">
@@ -371,7 +430,7 @@ export default function PubsTab() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredVenues.length === 0 ? (
+            {currentItems.length === 0 ? (
               <TableRow className="dark:border-gray-950">
                 <TableCell colSpan={7} className="text-center py-8">
                   <div className="flex flex-col items-center justify-center text-muted-foreground">
@@ -388,15 +447,22 @@ export default function PubsTab() {
                 </TableCell>
               </TableRow>
             ) : (
-              filteredVenues.map((venue) => (
+              currentItems.map((venue) => (
                 <TableRow
                   key={venue.id}
                   className="hover:bg-gray-50 dark:hover:bg-gray-800/50 dark:border-gray-800"
                 >
-                  <TableCell className="font-medium">{venue.name}</TableCell>
+                  <TableCell className="text-base ">{venue.name}</TableCell>
                   <TableCell className="text-muted-foreground flex items-center gap-1">
-                    <MapPin className="h-3 w-3" />
-                    {venue.address}
+                  {venue.address !== "" ? (
+  <>
+    <MapPin className="h-3 w-3" />
+    {venue.address}
+  </>
+) : (
+  <>None Provided</>
+)}
+
                   </TableCell>
                   <TableCell>
                     {renderSubscriptionBadge(venue.subscription)}
@@ -404,14 +470,31 @@ export default function PubsTab() {
                   <TableCell className="text-muted-foreground">
                     <div className="flex items-center gap-1">
                       <Calendar className="h-3 w-3" />
-                      {venue.lastPayment}
+                      {venue.last_payment_date && venue.last_payment_date !== "None" ? (
+    new Date(venue.last_qr_scanned).toLocaleString()
+  ) : (
+    <>No Payment</>
+  )}
                     </div>
                   </TableCell>
                   <TableCell className="text-muted-foreground">
-                    <div className="flex items-center gap-1">
-                      <QrCode className="h-3 w-3" />
-                      {venue.lastScanned}
-                    </div>
+                  <div className="flex items-center gap-1">
+  <QrCode className="h-3 w-3" />
+  {venue.last_qr_scanned && venue.last_qr_scanned !== "None" ? (
+    new Date(venue.last_qr_scanned).toLocaleString("en-GB", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: false,
+    })
+  ) : (
+    <>Not scanned</>
+  )}
+</div>
+
                   </TableCell>
                   <TableCell>{renderStatusBadge(venue.status)}</TableCell>
                   <TableCell className="text-right">
@@ -445,23 +528,26 @@ export default function PubsTab() {
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
-                          className={`cursor-pointer flex items-center gap-2 ${
-                            venue.status === "Active"
-                              ? "text-red-600 dark:text-red-400"
-                              : "text-green-600 dark:text-green-400"
-                          }`}
-                        >
-                          {venue.status === "Active" ? (
-                            <>
-                              <AlertTriangle className="h-4 w-4" />
-                              Disable venue
-                            </>
-                          ) : (
-                            <>
-                              <CheckCircle className="h-4 w-4" />
-                              Enable venue
-                            </>
-                          )}
+  onClick={() => handleVenueStatus(venue.id, venue.status)} 
+  className={`cursor-pointer flex items-center gap-2 ${
+    venue.status
+      ? "text-red-600 dark:text-red-400"
+      : "text-green-600 dark:text-green-400"
+  }`}
+>
+  {venue.status ? (
+    <>
+      <AlertTriangle className="h-4 w-4" />
+      Disable venue
+    </>
+  ) : (
+    <>
+      <CheckCircle className="h-4 w-4" />
+      Enable venue
+    </>
+  )}
+
+
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -473,7 +559,17 @@ export default function PubsTab() {
         </Table>
       </div>
 
-    
+      {renderPagination()}
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+
